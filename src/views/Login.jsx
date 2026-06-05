@@ -21,10 +21,15 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', password: '' });
 
- const handleAuthSubmit = async (e) => {
+const handleAuthSubmit = async (e) => {
   e.preventDefault();
-  setIsLoading(true);
+  
+  // ADD THIS LINE:
+  console.log("MY_API_URL_IS:", API_BASE); 
+  
   setErrorMsg('');
+  setSuccessMsg('');
+  setIsLoading(true);
 
   try {
     // 1. Ensure API_BASE is pulling from environment
