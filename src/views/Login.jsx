@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import './Login.css';
 
 // Safety check: Ensure the variable exists. If not, it will warn you in the console.
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = 'https://backend-inventory-production-e725.up.railway.app/api';
 if (!API_BASE) {
   console.error("CRITICAL: VITE_API_URL is missing in your Environment Variables!");
 }
