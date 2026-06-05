@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap');
+ 
+:root {
+  /* Core Palette */
+  --white: #ffffff;
+  --off-white: #fafaf8;
+  --warm-white: #f7f5f2;
+  --canvas: #f2f0ec;
+  --pearl: #e8e5df;
+  --stone: #d4cfc7;
+  --ash: #b5afa6;
+  --taupe: #8c8278;
+  --umber: #6b6259;
+  --espresso: #4a4038;
+  --ink: #2c2420;
+  --noir: #1a1612;
+ 
+  /* Accent */
+  --gold: #c9a84c;
+  --gold-light: #e8d5a3;
+  --gold-pale: #f7f0dc;
+  --gold-dark: #9a7a2e;
+  --emerald: #2d6a4f;
+  --emerald-light: #d8f3dc;
+  --crimson: #8b2635;
+  --crimson-light: #fce4e7;
+  --sapphire: #1d3461;
+  --sapphire-light: #dce8f5;
+  --amber: #c97d2b;
+  --amber-light: #fdecd6;
+ 
+  /* Semantic */
+  --bg-primary: var(--white);
+  --bg-secondary: var(--off-white);
+  --bg-tertiary: var(--warm-white);
+  --bg-canvas: var(--canvas);
+  --border-subtle: #eeebe6;
+  --border-light: #e2ddd6;
+  --border-medium: #ccc8c0;
+  --text-primary: var(--ink);
+  --text-secondary: var(--umber);
+  --text-muted: var(--ash);
+  --text-disabled: var(--stone);
+  --accent-primary: var(--gold);
+  --accent-hover: var(--gold-dark);
+  --success: var(--emerald);
+  --success-bg: var(--emerald-light);
+  --danger: var(--crimson);
+  --danger-bg: var(--crimson-light);
+  --info: var(--sapphire);
+  --info-bg: var(--sapphire-light);
+  --warning: var(--amber);
+  --warning-bg: var(--amber-light);
+ 
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+ 
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+ 
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+ 
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(44, 36, 32, 0.04);
+  --shadow-sm: 0 2px 8px rgba(44, 36, 32, 0.06), 0 1px 2px rgba(44, 36, 32, 0.04);
+  --shadow-md: 0 4px 16px rgba(44, 36, 32, 0.08), 0 2px 4px rgba(44, 36, 32, 0.04);
+  --shadow-lg: 0 8px 32px rgba(44, 36, 32, 0.10), 0 4px 8px rgba(44, 36, 32, 0.06);
+  --shadow-xl: 0 16px 48px rgba(44, 36, 32, 0.12), 0 8px 16px rgba(44, 36, 32, 0.06);
+  --shadow-gold: 0 4px 24px rgba(201, 168, 76, 0.20);
+ 
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+ 
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+  --topbar-height: 64px;
+  --content-max: 1400px;
+}
