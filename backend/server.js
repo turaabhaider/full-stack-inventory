@@ -12,18 +12,16 @@ const app = express();
 // ── Security Headers ──────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── CORS Configuration ────────────────────────────────────────────────────────
-// Ensure ALLOWED_ORIGIN is set in Railway Variables to your frontend URL
-const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
+// ── CORS Configuration (Permissive Debug Mode) ────────────────────────────────
 const corsOptions = {
-  origin: allowedOrigin,
+  origin: '*', // This forces the backend to accept requests from ANY origin
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle Preflight
+app.options('*', cors(corsOptions)); 
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
@@ -200,5 +198,4 @@ app.delete('/api/customer-products/:id', async (req, res) => {
 
 // ── Start Server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
-// '0.0.0.0' is required for Railway to bind the container port correctly
 app.listen(PORT, '0.0.0.0', () => console.log(`Secure API Gateway active on Port ${PORT}`));
