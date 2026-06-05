@@ -2,18 +2,14 @@ import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import './Login.css';
 
-// Safety check: Ensure the variable exists. If not, it will warn you in the console.
+// Hardcoded production URL to bypass build-time environment variable issues
 const API_BASE = 'https://backend-inventory-production-e725.up.railway.app/api';
-if (!API_BASE) {
-  console.error("CRITICAL: VITE_API_URL is missing in your Environment Variables!");
-}
 
 const Login = () => {
   const { login } = useContext(AppContext);
   const [isAdmin, setIsAdmin] = useState(true);
   const [clientAction, setClientAction] = useState('login');
   
-  // ... (rest of your state remains the same)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -21,44 +17,36 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', password: '' });
 
-const handleAuthSubmit = async (e) => {
-  e.preventDefault();
-  
-  // ADD THIS LINE:
-  console.log("MY_API_URL_IS:", API_BASE); 
-  
-  setErrorMsg('');
-  setSuccessMsg('');
-  setIsLoading(true);
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    
+    console.log("Connecting to:", `${API_BASE}/auth/login`);
+    
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsLoading(true);
 
-  try {
-    // 1. Ensure API_BASE is pulling from environment
-    if (!API_BASE) throw new Error("API_BASE is not defined!");
+    try {
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, isAdmin })
+      });
 
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }, // CRITICAL: Forces JSON format
-      body: JSON.stringify({ username, password, isAdmin })
-    });
+      const data = await response.json();
 
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      login(data.user);
-    } else {
-      // This will show you exactly what the server thinks is wrong
-      setErrorMsg(data.error || 'Login failed.');
+      if (response.ok && data.success) {
+        login(data.user);
+      } else {
+        setErrorMsg(data.error || 'Login failed.');
+      }
+    } catch (err) {
+      console.error('Connection Error:', err);
+      setErrorMsg('Network error. Check console for details.');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error('Connection Error:', err);
-    setErrorMsg('Check browser console for CORS error.');
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  // ... (Keep handleRegistrationSubmit the same)
-  // ... (Keep JSX the same)
+  };
 
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
@@ -66,7 +54,6 @@ const handleAuthSubmit = async (e) => {
     setSuccessMsg('');
     setIsLoading(true);
 
-    // Client-side validation before hitting the server
     if (regForm.password.length < 6) {
       setErrorMsg('Password must be at least 6 characters.');
       setIsLoading(false);
@@ -85,16 +72,15 @@ const handleAuthSubmit = async (e) => {
       if (data.success) {
         setSuccessMsg(data.message);
         setClientAction('login');
-        // Pre-fill the username field with the registered name for convenience
         setUsername(regForm.name);
         setPassword('');
         setRegForm({ name: '', email: '', phone: '', password: '' });
       } else {
-        setErrorMsg(data.error || 'Registration failed. Please try again.');
+        setErrorMsg(data.error || 'Registration failed.');
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setErrorMsg('Registration service unreachable. Check your network.');
+      setErrorMsg('Service unreachable.');
     } finally {
       setIsLoading(false);
     }
