@@ -2,8 +2,12 @@ import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import './Login.css';
 
+// Automatically detect environment to switch between Localhost and Railway
+// Login.jsx
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 const Login = () => {
-  const { login, registerCustomer, customers } = useContext(AppContext);
+  const { login } = useContext(AppContext);
   const [isAdmin, setIsAdmin] = useState(true);
   const [clientAction, setClientAction] = useState('login');
 
@@ -19,59 +23,60 @@ const Login = () => {
     password: ''
   });
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
-    if (isAdmin) {
-      if (username.trim() === 'admin' && password === 'paktex 2026') {
-        login({ id: 'admin_root', role: 'admin', name: 'System Admin' });
+    try {
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          username, 
+          password, 
+          isAdmin 
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        login(data.user);
       } else {
-        setErrorMsg('Invalid administrative cryptographic signature.');
+        setErrorMsg(data.error || 'Authentication failed.');
       }
-    } else {
-      const matchedClient = customers.find(
-        c => c.companyName.toLowerCase().trim() === username.toLowerCase().trim() && c.password === password
-      );
-
-      if (matchedClient) {
-        login({ id: matchedClient.id, role: 'client', name: matchedClient.companyName });
-      } else {
-        setErrorMsg('Client name or password not located in active registry.');
-      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Cannot reach the authentication server.');
     }
   };
 
-  const handleRegistrationSubmit = (e) => {
+  const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
-    const clientNameClean = regForm.name.trim();
-    const duplicate = customers.find(
-      c => c.companyName.toLowerCase().trim() === clientNameClean.toLowerCase()
-    );
-    
-    if (duplicate) {
-      setErrorMsg('This company name is already registered.');
-      return;
+    try {
+      const response = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(regForm)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccessMsg(data.message);
+        setClientAction('login');
+        setUsername(regForm.name);
+        setRegForm({ name: '', email: '', phone: '', password: '' });
+      } else {
+        setErrorMsg(data.error);
+      }
+    } catch (err) {
+      setErrorMsg('Registration service unreachable.');
     }
-
-    // Strict exact mapping constraint 
-    const exactPayload = {
-      companyName: clientNameClean,
-      email: regForm.email.toLowerCase().trim(), 
-      phone: regForm.phone.replace(/\+/g, ''),
-      password: regForm.password
-    };
-
-    registerCustomer(exactPayload);
-    setSuccessMsg(`Account for ${clientNameClean} compiled successfully.`);
-    
-    setClientAction('login');
-    setUsername(clientNameClean);
-    setRegForm({ name: '', email: '', phone: '', password: '' });
   };
 
   return (
@@ -86,14 +91,14 @@ const Login = () => {
           <button 
             type="button" 
             className={`role-tab-btn ${isAdmin ? 'active' : ''}`}
-            onClick={() => { setIsAdmin(true); setErrorMsg(''); setSuccessMsg(''); setUsername(''); setPassword(''); }}
+            onClick={() => { setIsAdmin(true); setErrorMsg(''); setSuccessMsg(''); }}
           >
             Logistics Admin
           </button>
           <button 
             type="button" 
             className={`role-tab-btn ${!isAdmin ? 'active' : ''}`}
-            onClick={() => { setIsAdmin(false); setErrorMsg(''); setSuccessMsg(''); setUsername(''); setPassword(''); }}
+            onClick={() => { setIsAdmin(false); setErrorMsg(''); setSuccessMsg(''); }}
           >
             Client Portal
           </button>
@@ -125,81 +130,35 @@ const Login = () => {
           <form onSubmit={handleAuthSubmit}>
             <div className="input-group-container">
               <label>{isAdmin ? 'Identification Code' : 'Client Name'}</label>
-              <input 
-                type="text" 
-                className="lux-input-field" 
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="" 
-              />
+              <input type="text" className="lux-input-field" required value={username} onChange={(e) => setUsername(e.target.value)} />
             </div>
 
             <div className="input-group-container">
               <label>Security Passphrase</label>
-              <input 
-                type="password" 
-                className="lux-input-field" 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder=""
-              />
+              <input type="password" className="lux-input-field" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
 
-            <button type="submit" className="login-submit-btn">
-              Establish Secure Connection
-            </button>
+            <button type="submit" className="login-submit-btn">Establish Secure Connection</button>
           </form>
         ) : (
-          <form onSubmit={handleRegistrationSubmit} className="client-registration-grid-clean">
+          <form onSubmit={handleRegistrationSubmit}>
             <div className="input-group-container">
               <label>Full Name</label>
-              <input 
-                type="text" 
-                className="lux-input-field" 
-                required 
-                value={regForm.name} 
-                onChange={e => setRegForm({...regForm, name: e.target.value})} 
-              />
+              <input type="text" className="lux-input-field" required value={regForm.name} onChange={e => setRegForm({...regForm, name: e.target.value})} />
             </div>
-
             <div className="input-group-container">
               <label>Email Address</label>
-              <input 
-                type="email" 
-                className="lux-input-field" 
-                required 
-                value={regForm.email} 
-                onChange={e => setRegForm({...regForm, email: e.target.value})} 
-              />
+              <input type="email" className="lux-input-field" required value={regForm.email} onChange={e => setRegForm({...regForm, email: e.target.value})} />
             </div>
-
             <div className="input-group-container">
-              <label>Phone Number (No +)</label>
-              <input 
-                type="text" 
-                className="lux-input-field" 
-                required 
-                value={regForm.phone} 
-                onChange={e => setRegForm({...regForm, phone: e.target.value})} 
-              />
+              <label>Phone Number</label>
+              <input type="text" className="lux-input-field" required value={regForm.phone} onChange={e => setRegForm({...regForm, phone: e.target.value})} />
             </div>
-
             <div className="input-group-container">
               <label>Secure Password</label>
-              <input 
-                type="password" 
-                className="lux-input-field" 
-                required 
-                value={regForm.password} 
-                onChange={e => setRegForm({...regForm, password: e.target.value})} 
-              />
+              <input type="password" className="lux-input-field" required value={regForm.password} onChange={e => setRegForm({...regForm, password: e.target.value})} />
             </div>
-
-            <button type="submit" className="login-submit-btn structural-span-full">
-              Register Corporate Account
-            </button>
+            <button type="submit" className="login-submit-btn">Register Corporate Account</button>
           </form>
         )}
       </div>
