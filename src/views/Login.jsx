@@ -21,30 +21,36 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', password: '' });
 
-  const handleAuthSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMsg('');
-    
-    try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, isAdmin })
-      });
+ const handleAuthSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setErrorMsg('');
 
-      const data = await response.json();
-      if (data.success) {
-        login(data.user);
-      } else {
-        setErrorMsg(data.error || 'Authentication failed.');
-      }
-    } catch (err) {
-      setErrorMsg('Cannot reach the backend. Check the VITE_API_URL variable.');
-    } finally {
-      setIsLoading(false);
+  try {
+    // 1. Ensure API_BASE is pulling from environment
+    if (!API_BASE) throw new Error("API_BASE is not defined!");
+
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, // CRITICAL: Forces JSON format
+      body: JSON.stringify({ username, password, isAdmin })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      login(data.user);
+    } else {
+      // This will show you exactly what the server thinks is wrong
+      setErrorMsg(data.error || 'Login failed.');
     }
-  };
+  } catch (err) {
+    console.error('Connection Error:', err);
+    setErrorMsg('Check browser console for CORS error.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // ... (Keep handleRegistrationSubmit the same)
   // ... (Keep JSX the same)
