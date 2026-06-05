@@ -6,6 +6,13 @@ import {
 } from 'lucide-react';
 import './AdminDashboard.css';
 
+// Helper: safely get display name for a customer object.
+// The DB returns `name` aliased as `companyName` — this guard
+// prevents "Cannot read properties of undefined (reading 'toLowerCase')"
+// if the alias is ever missing.
+const getClientName = (client) =>
+  client?.companyName || client?.name || 'Unknown Client';
+
 const ImageInput = ({ value, onChange, preview, onPreview }) => {
   const fileRef = useRef(null);
   const [mode, setMode] = useState('url');
@@ -150,7 +157,8 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                 <div className="ad-customer-select-list">
                   {customers.map(c => (
                     <div key={c.id} className={`ad-customer-chip ${selectedCustomers.includes(c.id) ? 'selected' : ''}`} onClick={() => toggleCustomer(c.id)}>
-                      <span>{c.companyName}</span>
+                      {/* FIX: use getClientName helper — never call .toLowerCase() on undefined */}
+                      <span>{getClientName(c)}</span>
                       {selectedCustomers.includes(c.id) && <CheckCircle size={14} />}
                     </div>
                   ))}
@@ -163,6 +171,7 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                     <input type="checkbox" checked={allSamePrice} onChange={e => setAllSamePrice(e.target.checked)} />
                     Same price for all selected clients
                   </label>
+
                   {!allSamePrice && (
                     <div className="ad-form-group">
                       <label className="ad-label">Per-Client Contract Price (₨)</label>
@@ -170,7 +179,7 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                         const client = customers.find(c => c.id === cId);
                         return (
                           <div key={cId} className="ad-per-client-row">
-                            <span className="ad-per-client-row-name">{client?.companyName}</span>
+                            <span className="ad-per-client-row-name">{getClientName(client)}</span>
                             <input className="ad-input" type="number" placeholder={`Base: ₨ ${basePrice}`}
                               value={perCustomerPrices[cId] || ''}
                               onChange={e => setPerCustomerPrices(prev => ({ ...prev, [cId]: e.target.value }))} />
@@ -287,7 +296,7 @@ const AdminDashboard = () => {
           ))}
         </nav>
         <div className="ad-sidebar-footer">
-          <p className="ad-operator-label">Operator: <strong>{user?.name || 'System Admin'}</strong></p>
+          <p className="ad-operator-label">Operator: <strong>{user?.name || user?.companyName || 'System Admin'}</strong></p>
           <button className="ad-logout-btn" onClick={logout}><LogOut size={14} /> Log Out Session</button>
         </div>
       </aside>
@@ -323,7 +332,8 @@ const AdminDashboard = () => {
                       <div key={client.id} className={`ad-client-card ${selectedClientId === client.id ? 'active' : ''}`}
                         onClick={() => { setSelectedClientId(client.id); setTargetProductId(''); }}>
                         <div>
-                          <p className="ad-client-card-name">{client.companyName}</p>
+                          {/* FIX: use getClientName — was crashing on undefined.toLowerCase() */}
+                          <p className="ad-client-card-name">{getClientName(client)}</p>
                           <span className="ad-client-card-sub">{client.city || 'Standard Territory'}</span>
                         </div>
                         <div className="ad-client-card-badges">
@@ -344,7 +354,7 @@ const AdminDashboard = () => {
                   <>
                     <div className="ad-focus-banner">
                       <span className="ad-focus-banner-label">Configuring Rates For</span>
-                      <h2>{selectedClient.companyName}</h2>
+                      <h2>{getClientName(selectedClient)}</h2>
                     </div>
                     <form onSubmit={handleAssignPriceOverride}>
                       <div className="ad-form-group">
@@ -376,7 +386,7 @@ const AdminDashboard = () => {
                       <button type="submit" className="ad-btn-black" disabled={!targetProductId}>Apply Contract Price Override</button>
                     </form>
 
-                    <h4 className="ad-divider-title">Active Price Overrides — {selectedClient.companyName}</h4>
+                    <h4 className="ad-divider-title">Active Price Overrides — {getClientName(selectedClient)}</h4>
                     {isolatedRules.length === 0 ? (
                       <div className="ad-empty-box">No overrides set. Client is on standard market pricing.</div>
                     ) : (
@@ -397,7 +407,7 @@ const AdminDashboard = () => {
                       })
                     )}
 
-                    <h4 className="ad-divider-title">Client-Specific Products — {selectedClient.companyName}</h4>
+                    <h4 className="ad-divider-title">Client-Specific Products — {getClientName(selectedClient)}</h4>
                     {clientCustProds.length === 0 ? (
                       <div className="ad-empty-box-large">
                         <Package size={22} style={{ color: '#ccc' }} />
@@ -451,7 +461,7 @@ const AdminDashboard = () => {
                       const custProds = customerProducts.filter(p => p.assignedCustomers?.includes(client.id));
                       return (
                         <tr key={client.id}>
-                          <td><span className="ad-matrix-client-name">{client.companyName}</span></td>
+                          <td><span className="ad-matrix-client-name">{getClientName(client)}</span></td>
                           {products.map(prod => {
                             const rule = pricingRules.find(r => r.customerId === client.id && r.productId === prod.id);
                             return (
@@ -564,7 +574,7 @@ const AdminDashboard = () => {
                 return (
                   <div key={client.id} className="ad-card">
                     <div className="ad-card-header">
-                      <h3>{client.companyName}</h3>
+                      <h3>{getClientName(client)}</h3>
                       <span className="ad-badge">{prods.length} Product{prods.length !== 1 ? 's' : ''}</span>
                     </div>
                     <div className="ad-catalog-grid">
@@ -589,7 +599,7 @@ const AdminDashboard = () => {
                                   const other = customers.find(c => c.id === cId);
                                   return (
                                     <div key={cId} className="ad-assigned-breakdown-row">
-                                      <span>{other?.companyName}</span>
+                                      <span>{getClientName(other)}</span>
                                       <strong>₨ {(cp.customerPricing?.[cId] || cp.basePrice).toLocaleString()}</strong>
                                     </div>
                                   );

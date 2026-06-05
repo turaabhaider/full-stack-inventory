@@ -11,15 +11,16 @@ const app = express();
 app.use(helmet());
 
 // Dynamic CORS: In production, this pulls from your environment variables
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
-app.use(cors({ 
-    origin: allowedOrigin, 
-    credentials: true 
+// On Railway set FRONTEND_URL=https://your-frontend.up.railway.app
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true
 }));
 
 app.use(express.json());
 
-// Railway Health Check: Ensures your service is marked "Healthy"
+// Railway Health Check
 app.get('/', (req, res) => res.send('API Gateway is operational'));
 
 app.use('/api/auth', authRoutes);
@@ -29,17 +30,22 @@ app.get('/api/products', async (req, res) => {
     const [rows] = await pool.query('SELECT * FROM products');
     res.json(rows);
   } catch (err) {
-    console.error("Database Fetch Error:", err);
+    console.error('Database Fetch Error:', err);
     res.status(500).json({ error: 'Database connection failed' });
   }
 });
 
+// FIX: alias `name` → `companyName` so AdminDashboard never gets undefined
+// on client.companyName (which caused the Cannot read properties of undefined
+// (reading 'toLowerCase') crash you saw in production)
 app.get('/api/customers', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE role = "client"');
+    const [rows] = await pool.query(
+      'SELECT id, name AS companyName, email, phone, role FROM users WHERE role = "client"'
+    );
     res.json(rows);
   } catch (err) {
-    console.error("Database Fetch Error:", err);
+    console.error('Database Fetch Error:', err);
     res.status(500).json({ error: 'Database connection failed' });
   }
 });

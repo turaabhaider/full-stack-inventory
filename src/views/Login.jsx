@@ -3,7 +3,8 @@ import { AppContext } from '../context/AppContext';
 import './Login.css';
 
 // Automatically detect environment to switch between Localhost and Railway
-// Login.jsx
+// Set VITE_API_URL in your Railway frontend environment variables:
+// VITE_API_URL=https://your-backend.up.railway.app/api
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const Login = () => {
@@ -15,6 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const [regForm, setRegForm] = useState({
     name: '',
@@ -27,28 +29,29 @@ const Login = () => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          username, 
-          password, 
-          isAdmin 
-        })
+        body: JSON.stringify({ username, password, isAdmin })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
+        // The server returns `companyName` (aliased from `name`) in the user object.
+        // Pass the whole user object to context — both admin and client are safe.
         login(data.user);
       } else {
         setErrorMsg(data.error || 'Authentication failed.');
       }
     } catch (err) {
-      console.error(err);
-      setErrorMsg('Cannot reach the authentication server.');
+      console.error('Login error:', err);
+      setErrorMsg('Cannot reach the authentication server. Check your network.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,6 +59,14 @@ const Login = () => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
+    setIsLoading(true);
+
+    // Client-side validation before hitting the server
+    if (regForm.password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE}/auth/register`, {
@@ -69,13 +80,18 @@ const Login = () => {
       if (data.success) {
         setSuccessMsg(data.message);
         setClientAction('login');
+        // Pre-fill the username field with the registered name for convenience
         setUsername(regForm.name);
+        setPassword('');
         setRegForm({ name: '', email: '', phone: '', password: '' });
       } else {
-        setErrorMsg(data.error);
+        setErrorMsg(data.error || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      setErrorMsg('Registration service unreachable.');
+      console.error('Registration error:', err);
+      setErrorMsg('Registration service unreachable. Check your network.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,15 +104,15 @@ const Login = () => {
         </div>
 
         <div className="role-selector-tabs">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`role-tab-btn ${isAdmin ? 'active' : ''}`}
             onClick={() => { setIsAdmin(true); setErrorMsg(''); setSuccessMsg(''); }}
           >
             Logistics Admin
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`role-tab-btn ${!isAdmin ? 'active' : ''}`}
             onClick={() => { setIsAdmin(false); setErrorMsg(''); setSuccessMsg(''); }}
           >
@@ -106,15 +122,15 @@ const Login = () => {
 
         {!isAdmin && (
           <div className="client-action-toggle-container">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={`client-action-link ${clientAction === 'login' ? 'active' : ''}`}
               onClick={() => { setClientAction('login'); setErrorMsg(''); setSuccessMsg(''); }}
             >
               Sign In
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={`client-action-link ${clientAction === 'register' ? 'active' : ''}`}
               onClick={() => { setClientAction('register'); setErrorMsg(''); setSuccessMsg(''); }}
             >
@@ -130,35 +146,57 @@ const Login = () => {
           <form onSubmit={handleAuthSubmit}>
             <div className="input-group-container">
               <label>{isAdmin ? 'Identification Code' : 'Client Name'}</label>
-              <input type="text" className="lux-input-field" required value={username} onChange={(e) => setUsername(e.target.value)} />
+              <input
+                type="text"
+                className="lux-input-field"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
             </div>
-
             <div className="input-group-container">
               <label>Security Passphrase</label>
-              <input type="password" className="lux-input-field" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input
+                type="password"
+                className="lux-input-field"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-
-            <button type="submit" className="login-submit-btn">Establish Secure Connection</button>
+            <button type="submit" className="login-submit-btn" disabled={isLoading}>
+              {isLoading ? 'Connecting...' : 'Establish Secure Connection'}
+            </button>
           </form>
         ) : (
           <form onSubmit={handleRegistrationSubmit}>
             <div className="input-group-container">
               <label>Full Name</label>
-              <input type="text" className="lux-input-field" required value={regForm.name} onChange={e => setRegForm({...regForm, name: e.target.value})} />
+              <input type="text" className="lux-input-field" required
+                value={regForm.name}
+                onChange={e => setRegForm({ ...regForm, name: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Email Address</label>
-              <input type="email" className="lux-input-field" required value={regForm.email} onChange={e => setRegForm({...regForm, email: e.target.value})} />
+              <input type="email" className="lux-input-field" required
+                value={regForm.email}
+                onChange={e => setRegForm({ ...regForm, email: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Phone Number</label>
-              <input type="text" className="lux-input-field" required value={regForm.phone} onChange={e => setRegForm({...regForm, phone: e.target.value})} />
+              <input type="text" className="lux-input-field"
+                value={regForm.phone}
+                onChange={e => setRegForm({ ...regForm, phone: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Secure Password</label>
-              <input type="password" className="lux-input-field" required value={regForm.password} onChange={e => setRegForm({...regForm, password: e.target.value})} />
+              <input type="password" className="lux-input-field" required
+                value={regForm.password}
+                onChange={e => setRegForm({ ...regForm, password: e.target.value })} />
             </div>
-            <button type="submit" className="login-submit-btn">Register Corporate Account</button>
+            <button type="submit" className="login-submit-btn" disabled={isLoading}>
+              {isLoading ? 'Registering...' : 'Register Corporate Account'}
+            </button>
           </form>
         )}
       </div>

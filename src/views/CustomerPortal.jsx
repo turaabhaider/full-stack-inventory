@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
-import { ShoppingBag, LogOut, Sliders, ArrowRight, X, Plus, Minus } from 'lucide-react';
+import { ShoppingBag, LogOut, Sliders, X } from 'lucide-react';
 import './CustomerPortal.css';
 
 const CustomerPortal = () => {
@@ -10,7 +10,7 @@ const CustomerPortal = () => {
   const [quantities, setQuantities] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
 
-  // --- FIX: Cleanup memory to prevent ERR_FILE_NOT_FOUND ---
+  // Cleanup object URLs on unmount to prevent ERR_FILE_NOT_FOUND
   useEffect(() => {
     return () => {
       if (imagePreview) {
@@ -19,7 +19,7 @@ const CustomerPortal = () => {
     };
   }, [imagePreview]);
 
-  // Merge base inventory with any products the Admin exclusively assigned to this logged-in client
+  // Merge base inventory with any products the Admin exclusively assigned to this client
   const myExclusiveProducts = customerProducts.filter(p => p.assignedCustomers?.includes(user?.id));
   const combinedCatalog = [...products, ...myExclusiveProducts];
 
@@ -69,6 +69,10 @@ const CustomerPortal = () => {
   const grandPortfolioValuation = stagedAllocations.reduce((sum, item) => sum + item.total, 0);
   const totalUnitsCount = stagedAllocations.reduce((sum, item) => sum + item.qty, 0);
 
+  // FIX: user object from DB has `companyName` (aliased from `name`) —
+  // fall back gracefully so the nav never shows undefined
+  const displayName = user?.companyName || user?.name || 'Premium Client';
+
   return (
     <div className="cp-root">
       <header className="cp-nav">
@@ -78,13 +82,13 @@ const CustomerPortal = () => {
         </div>
 
         <nav className="cp-nav-tabs">
-          <button 
+          <button
             className={`cp-tab ${activeTab === 'curated-catalog' ? 'active' : ''}`}
             onClick={() => setActiveTab('curated-catalog')}
           >
             <Sliders size={13} /> Collection Matrix
           </button>
-          <button 
+          <button
             className={`cp-tab ${activeTab === 'requisition-manifest' ? 'active' : ''}`}
             onClick={() => setActiveTab('requisition-manifest')}
           >
@@ -96,7 +100,7 @@ const CustomerPortal = () => {
         <div className="cp-nav-right">
           <div className="cp-nav-identity">
             <span className="cp-nav-identity-label">Secure Node Session</span>
-            <span className="cp-nav-identity-name">{user?.name || 'Premium Client'}</span>
+            <span className="cp-nav-identity-name">{displayName}</span>
           </div>
           <button className="cp-nav-logout" onClick={logout}>
             <LogOut size={12} /> Leave Matrix
@@ -138,23 +142,37 @@ const CustomerPortal = () => {
 
         {activeTab === 'requisition-manifest' && (
           <div className="cp-manifest-layout">
-             <table className="cp-manifest-table">
-                <thead>
-                    <tr><th>Asset</th><th>SKU</th><th>Rate</th><th>Qty</th><th>Total</th><th></th></tr>
-                </thead>
-                <tbody>
-                  {stagedAllocations.map(item => (
+            <table className="cp-manifest-table">
+              <thead>
+                <tr><th>Asset</th><th>SKU</th><th>Rate</th><th>Qty</th><th>Total</th><th></th></tr>
+              </thead>
+              <tbody>
+                {stagedAllocations.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
+                      No items staged yet. Go to Collection Matrix to add products.
+                    </td>
+                  </tr>
+                ) : (
+                  stagedAllocations.map(item => (
                     <tr key={item.id}>
-                        <td>{item.name}</td>
-                        <td>{item.sku}</td>
-                        <td>Rs {item.price.toLocaleString()}</td>
-                        <td>{item.qty}</td>
-                        <td>Rs {item.total.toLocaleString()}</td>
-                        <td><button onClick={() => handleRemoveItem(item.id)}><X size={14}/></button></td>
+                      <td>{item.name}</td>
+                      <td>{item.sku}</td>
+                      <td>Rs {item.price.toLocaleString()}</td>
+                      <td>{item.qty}</td>
+                      <td>Rs {item.total.toLocaleString()}</td>
+                      <td><button onClick={() => handleRemoveItem(item.id)}><X size={14} /></button></td>
                     </tr>
-                  ))}
-                </tbody>
-             </table>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {stagedAllocations.length > 0 && (
+              <div className="cp-manifest-footer" style={{ padding: '16px 0', textAlign: 'right', borderTop: '1px solid #eee', marginTop: '12px' }}>
+                <span style={{ marginRight: '24px', color: '#888' }}>{totalUnitsCount} units</span>
+                <strong>Grand Total: Rs {grandPortfolioValuation.toLocaleString()}</strong>
+              </div>
+            )}
           </div>
         )}
       </main>
