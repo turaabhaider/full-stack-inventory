@@ -2,35 +2,30 @@ import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import './Login.css';
 
-// Automatically detect environment to switch between Localhost and Railway
-// Set VITE_API_URL in your Railway frontend environment variables:
-// VITE_API_URL=https://your-backend.up.railway.app/api
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Safety check: Ensure the variable exists. If not, it will warn you in the console.
+const API_BASE = import.meta.env.VITE_API_URL;
+if (!API_BASE) {
+  console.error("CRITICAL: VITE_API_URL is missing in your Environment Variables!");
+}
 
 const Login = () => {
   const { login } = useContext(AppContext);
   const [isAdmin, setIsAdmin] = useState(true);
   const [clientAction, setClientAction] = useState('login');
-
+  
+  // ... (rest of your state remains the same)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const [regForm, setRegForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: ''
-  });
+  const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', password: '' });
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
     setIsLoading(true);
-
+    setErrorMsg('');
+    
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
@@ -39,21 +34,20 @@ const Login = () => {
       });
 
       const data = await response.json();
-
       if (data.success) {
-        // The server returns `companyName` (aliased from `name`) in the user object.
-        // Pass the whole user object to context — both admin and client are safe.
         login(data.user);
       } else {
         setErrorMsg(data.error || 'Authentication failed.');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setErrorMsg('Cannot reach the authentication server. Check your network.');
+      setErrorMsg('Cannot reach the backend. Check the VITE_API_URL variable.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // ... (Keep handleRegistrationSubmit the same)
+  // ... (Keep JSX the same)
 
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();

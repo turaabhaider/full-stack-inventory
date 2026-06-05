@@ -6,31 +6,31 @@ import authRoutes from './routes/authRoutes.js';
 import pool from './config/db.js';
 
 dotenv.config();
+
 const app = express();
 
 // ── Security Headers ──────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
-// On Railway set: FRONTEND_URL=https://your-frontend.up.railway.app
-// MUST come before express.json() and before any routes
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+// ── CORS Configuration ────────────────────────────────────────────────────────
+// Ensure ALLOWED_ORIGIN is set in Railway Variables to your frontend URL
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
 const corsOptions = {
   origin: allowedOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-app.use(cors(corsOptions));
-// Handle OPTIONS preflight for every route (fixes Railway CORS preflight block)
-app.options('*', cors(corsOptions));
 
-// ── Body Parsing ──────────────────────────────────────────────────────────────
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle Preflight
+
+// ── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── Health Check ──────────────────────────────────────────────────────────────
-app.get('/', (req, res) => res.send('API Gateway is operational'));
+app.get('/', (req, res) => res.status(200).send('API Gateway is operational'));
 
 // ── Auth Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -78,7 +78,6 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // ── Customers ─────────────────────────────────────────────────────────────────
-// Alias name -> companyName so AdminDashboard never gets undefined.companyName
 app.get('/api/customers', async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -110,8 +109,8 @@ app.post('/api/pricing-rules', async (req, res) => {
   try {
     const ruleId = id || `rule_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     await pool.query(
-      `INSERT INTO pricing_rules (id, productId, customerId, customizedPrice)
-       VALUES (?, ?, ?, ?)
+      `INSERT INTO pricing_rules (id, productId, customerId, customizedPrice) 
+       VALUES (?, ?, ?, ?) 
        ON DUPLICATE KEY UPDATE customizedPrice = VALUES(customizedPrice)`,
       [ruleId, productId, customerId, Number(customizedPrice)]
     );
@@ -132,7 +131,7 @@ app.delete('/api/pricing-rules/:id', async (req, res) => {
   }
 });
 
-// ── Customer Products (client-exclusive) ──────────────────────────────────────
+// ── Customer Products ────────────────────────────────────────────────────────
 app.get('/api/customer-products', async (req, res) => {
   try {
     const [products] = await pool.query('SELECT * FROM customer_products');
@@ -199,6 +198,7 @@ app.delete('/api/customer-products/:id', async (req, res) => {
   }
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Start Server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Secure API Gateway active on Port ${PORT}`));
+// '0.0.0.0' is required for Railway to bind the container port correctly
+app.listen(PORT, '0.0.0.0', () => console.log(`Secure API Gateway active on Port ${PORT}`));

@@ -44,39 +44,31 @@ router.post('/login', async (req, res) => {
 });
 
 // ── Register ──────────────────────────────────────────────────────────────────
+// REPLACE your current router.post('/register', ...) with this:
 router.post('/register', async (req, res) => {
-  const body = req.body || {};
-  const { name, email, phone, password } = body;
+  const { name, email, phone, password } = req.body;
 
+  // 1. Validation
   if (!name || !email || !password) {
-    return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
-  }
-
-  if (password.length < 3) {
-    return res.status(400).json({ success: false, error: 'Password must be at least 3 characters.' });
+    return res.status(400).json({ success: false, error: 'All fields are required.' });
   }
 
   try {
-    // Check for duplicate email
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email.trim()]);
+    // 2. Check for existing user
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length > 0) {
-      return res.status(409).json({ success: false, error: 'An account with this email already exists.' });
+      return res.status(409).json({ success: false, error: 'Email already registered.' });
     }
 
-    const id = `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-    await pool.query(
-      'INSERT INTO users (id, role, name, email, phone, password) VALUES (?, "client", ?, ?, ?, ?)',
-      [id, name.trim(), email.trim(), phone || null, password]
-    );
+    // 3. Insert user
+    const id = Date.now().toString();
+    const query = 'INSERT INTO users (id, role, name, email, phone, password) VALUES (?, "client", ?, ?, ?, ?)';
+    await pool.query(query, [id, name, email, phone, password]);
+    
     res.status(201).json({ success: true, message: 'Account created successfully' });
   } catch (err) {
-    console.error('Registration DB error:', err);
-    res.status(500).json({ success: false, error: 'Database failed to create user. Check server logs.' });
+    console.error("REGISTRATION ERROR:", err); // CHECK RAILWAY LOGS FOR THIS
+    res.status(500).json({ success: false, error: 'Internal Database Error' });
   }
 });
 
