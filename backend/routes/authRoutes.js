@@ -14,7 +14,7 @@ router.post('/login', async (req, res) => {
 
   try {
     if (isAdmin) {
-      // Trim both sides — accidental whitespace in Railway var was causing mismatch
+      // Trim both sides — whitespace in Railway env var was causing mismatch
       const adminPassword = (process.env.ADMIN_PASSWORD || 'paktex 2026').trim();
       const submitted     = String(password).trim();
 
@@ -22,12 +22,10 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ success: false, error: 'Invalid Admin Password.' });
       }
 
-      // Case-insensitive name match — "daniyal khan" matches "Daniyal Khan" in DB
-      // Return name as both `name` and `companyName` so frontend never gets undefined
+      // Case-insensitive name match + return both name and companyName
       const [rows] = await pool.query(
         `SELECT id, role, name, name AS companyName
-         FROM users
-         WHERE role = 'admin' AND LOWER(name) = LOWER(?)`,
+         FROM users WHERE role = 'admin' AND LOWER(name) = LOWER(?)`,
         [username.trim()]
       );
 
@@ -38,8 +36,7 @@ router.post('/login', async (req, res) => {
       // Client login — case-insensitive name match
       const [rows] = await pool.query(
         `SELECT id, role, name, name AS companyName, email, phone
-         FROM users
-         WHERE role = 'client' AND LOWER(name) = LOWER(?) AND password = ?`,
+         FROM users WHERE role = 'client' AND LOWER(name) = LOWER(?) AND password = ?`,
         [username.trim(), password]
       );
 
@@ -55,26 +52,21 @@ router.post('/login', async (req, res) => {
 // ── Register ──────────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
   const body = req.body || {};
-
-  // Coerce everything to string — prevents .toLowerCase crash if field is undefined
-  const name     = body.name     ? String(body.name).trim()             : '';
+  const name     = body.name     ? String(body.name).trim()                : '';
   const email    = body.email    ? String(body.email).trim().toLowerCase() : '';
-  const phone    = body.phone    ? String(body.phone).trim()            : '';
-  const password = body.password ? String(body.password)                : '';
+  const phone    = body.phone    ? String(body.phone).trim()               : '';
+  const password = body.password ? String(body.password)                   : '';
 
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, error: 'Name, email and password are required.' });
   }
-
   if (password.length < 6) {
     return res.status(400).json({ success: false, error: 'Password must be at least 6 characters.' });
   }
 
   try {
-    // Check duplicate email (case-insensitive)
     const [existing] = await pool.query(
-      'SELECT id FROM users WHERE LOWER(email) = ?',
-      [email]
+      'SELECT id FROM users WHERE LOWER(email) = ?', [email]
     );
     if (existing.length > 0) {
       return res.status(409).json({ success: false, error: 'Email already registered.' });
