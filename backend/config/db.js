@@ -6,10 +6,11 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: 'paktex_db', // Ensure this is hardcoded to the name we created
+  database: process.env.DB_NAME || 'paktex_db', // Let Railway inject the correct name
+  port: process.env.DB_PORT || 3306,            // CRITICAL for Railway connections
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
-export default pool;      
+export default pool;
