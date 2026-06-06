@@ -5,7 +5,7 @@ const router = express.Router();
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
-  // Safety: req.body can be undefined if Content-Type header is missing
+  // FIX: guard against missing body (e.g. wrong Content-Type header)
   const body = req.body || {};
   const { username, password, isAdmin } = body;
 
@@ -15,25 +15,31 @@ router.post('/login', async (req, res) => {
 
   try {
     if (isAdmin) {
-      // Admin password is stored in env var for easy rotation without redeployment
-      // Falls back to hardcoded value so existing setup still works
-      const adminPassword = process.env.ADMIN_PASSWORD || 'paktex 2026';
-      if (password !== adminPassword) {
+      // Admin password from Railway env var — falls back to default
+      // FIX: trim both sides so accidental whitespace in Railway variable doesn't break comparison
+      const adminPassword = (process.env.ADMIN_PASSWORD || 'paktex 2026').trim();
+      const submittedPassword = String(password).trim();
+
+      if (submittedPassword !== adminPassword) {
         return res.status(401).json({ success: false, error: 'Invalid Admin Password.' });
       }
-      // Return companyName alias so frontend never gets undefined.companyName
+
+      // FIX: use LOWER() on both sides so "Daniyal Khan" vs "daniyal khan" doesn't matter
       const [rows] = await pool.query(
-        'SELECT id, role, name AS companyName FROM users WHERE role = "admin" AND name = ?',
+        'SELECT id, role, name AS companyName FROM users WHERE role = "admin" AND LOWER(name) = LOWER(?)',
         [username.trim()]
       );
+
       if (rows.length > 0) return res.json({ success: true, user: rows[0] });
       return res.status(401).json({ success: false, error: 'Admin not found.' });
+
     } else {
       // Client login — match by name AND password
       const [rows] = await pool.query(
-        'SELECT id, role, name AS companyName, email, phone FROM users WHERE role = "client" AND name = ? AND password = ?',
+        'SELECT id, role, name AS companyName, email, phone FROM users WHERE role = "client" AND LOWER(name) = LOWER(?) AND password = ?',
         [username.trim(), password]
       );
+
       if (rows.length > 0) return res.json({ success: true, user: rows[0] });
       return res.status(401).json({ success: false, error: 'Invalid Client credentials.' });
     }
@@ -44,31 +50,43 @@ router.post('/login', async (req, res) => {
 });
 
 // ── Register ──────────────────────────────────────────────────────────────────
-// REPLACE your current router.post('/register', ...) with this:
 router.post('/register', async (req, res) => {
-  const { name, email, phone, password } = req.body;
+  // FIX: guard against undefined req.body (missing Content-Type header from frontend)
+  const body = req.body || {};
+  const { name, email, phone, password } = body;
 
-  // 1. Validation
-  if (!name || !email || !password) {
-    return res.status(400).json({ success: false, error: 'All fields are required.' });
+  // FIX: trim + coerce to string before using — prevents .toLowerCase() crash
+  const safeName     = name     ? String(name).trim()     : '';
+  const safeEmail    = email    ? String(email).trim().toLowerCase() : '';
+  const safePhone    = phone    ? String(phone).trim()    : '';
+  const safePassword = password ? String(password)        : '';
+
+  // Validation
+  if (!safeName || !safeEmail || !safePassword) {
+    return res.status(400).json({ success: false, error: 'Name, email and password are required.' });
   }
 
   try {
-    // 2. Check for existing user
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    // Check for existing user
+    const [existing] = await pool.query(
+      'SELECT id FROM users WHERE LOWER(email) = ?',
+      [safeEmail]
+    );
     if (existing.length > 0) {
       return res.status(409).json({ success: false, error: 'Email already registered.' });
     }
 
-    // 3. Insert user
+    // Insert new client user
     const id = Date.now().toString();
-    const query = 'INSERT INTO users (id, role, name, email, phone, password) VALUES (?, "client", ?, ?, ?, ?)';
-    await pool.query(query, [id, name, email, phone, password]);
-    
-    res.status(201).json({ success: true, message: 'Account created successfully' });
+    await pool.query(
+      'INSERT INTO users (id, role, name, email, phone, password) VALUES (?, "client", ?, ?, ?, ?)',
+      [id, safeName, safeEmail, safePhone, safePassword]
+    );
+
+    res.status(201).json({ success: true, message: 'Account created successfully.' });
   } catch (err) {
-    console.error("REGISTRATION ERROR:", err); // CHECK RAILWAY LOGS FOR THIS
-    res.status(500).json({ success: false, error: 'Internal Database Error' });
+    console.error('REGISTRATION ERROR:', err);
+    res.status(500).json({ success: false, error: 'Internal Database Error.' });
   }
 });
 

@@ -5,6 +5,9 @@ export const AppContext = createContext(null);
 // Detect environment automatically
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+// ── Safe string helper — prevents .toLowerCase() / .trim() crashes ────────────
+const safeStr = (val) => (val == null ? '' : String(val));
+
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(sessionStorage.getItem('paktex_user')) || null; }
@@ -28,7 +31,7 @@ export const AppProvider = ({ children }) => {
         fetch(`${API_BASE}/customer-products`),
       ]);
 
-      // Parse each response safely
+      // Parse each response safely — never throw on bad JSON or non-200
       const safeJson = async (res) => {
         if (!res.ok) return [];
         try { return await res.json(); } catch { return []; }
@@ -42,13 +45,18 @@ export const AppProvider = ({ children }) => {
       ]);
 
       setProductsState(Array.isArray(prods) ? prods : []);
-      // CRITICAL: customers from DB have companyName alias — guard any nulls
+
+      // FIX: null-safe every string field so .toLowerCase() never crashes
       setCustomers(
         (Array.isArray(custs) ? custs : []).map(c => ({
           ...c,
-          companyName: c.companyName || c.name || 'Unknown Client',
+          companyName: safeStr(c.companyName || c.name) || 'Unknown Client',
+          name:        safeStr(c.name        || c.companyName) || 'Unknown Client',
+          email:       safeStr(c.email),
+          phone:       safeStr(c.phone),
         }))
       );
+
       setPricingRulesState(Array.isArray(rules) ? rules : []);
       setCustomerProductsState(Array.isArray(cprods) ? cprods : []);
     } catch (err) {
@@ -62,11 +70,13 @@ export const AppProvider = ({ children }) => {
 
   // ── Auth ───────────────────────────────────────────────────────────────────
   const login = (userData) => {
-    // Normalise: always have both companyName and name populated
+    // FIX: normalise ALL string fields before storing — prevents undefined
     const normalised = {
       ...userData,
-      companyName: userData.companyName || userData.name || 'User',
-      name: userData.name || userData.companyName || 'User',
+      companyName: safeStr(userData.companyName || userData.name) || 'User',
+      name:        safeStr(userData.name        || userData.companyName) || 'User',
+      email:       safeStr(userData.email),
+      phone:       safeStr(userData.phone),
     };
     setUser(normalised);
     sessionStorage.setItem('paktex_user', JSON.stringify(normalised));
@@ -78,11 +88,10 @@ export const AppProvider = ({ children }) => {
   };
 
   // ── Products ───────────────────────────────────────────────────────────────
-  // Wrap setProducts so any add from AdminDashboard also hits the DB
   const setProducts = useCallback((updaterOrValue) => {
     setProductsState(prev => {
       const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-      // Detect newly added product (one more than before)
+      // Detect newly added product (one more than before) → persist to DB
       if (next.length > prev.length) {
         const newProd = next[next.length - 1];
         fetch(`${API_BASE}/products`, {
@@ -121,9 +130,7 @@ export const AppProvider = ({ children }) => {
   }, [pricingRules]);
 
   const deletePricingRule = useCallback(async (ruleId) => {
-    // Optimistic update
     setPricingRulesState(prev => prev.filter(r => r.id !== ruleId));
-    // Persist
     try {
       await fetch(`${API_BASE}/pricing-rules/${ruleId}`, { method: 'DELETE' });
     } catch (err) {
@@ -136,7 +143,6 @@ export const AppProvider = ({ children }) => {
     setCustomerProductsState(prev => {
       const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
 
-      // Detect new product added
       if (next.length > prev.length) {
         const newProd = next[next.length - 1];
         fetch(`${API_BASE}/customer-products`, {
@@ -146,7 +152,6 @@ export const AppProvider = ({ children }) => {
         }).catch(err => console.error('Customer product save error:', err));
       }
 
-      // Detect product deleted
       if (next.length < prev.length) {
         const deleted = prev.find(p => !next.find(n => n.id === p.id));
         if (deleted) {
@@ -160,21 +165,20 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   // ── Price Lookup ───────────────────────────────────────────────────────────
-  // Used by CustomerPortal to get the right price for a given customer
   const getProductPriceForCustomer = useCallback((productId, customerId) => {
     if (!customerId) return null;
 
-    // 1. Check customer-exclusive product pricing first
+    // 1. Customer-exclusive product pricing
     const custProd = customerProducts.find(p => p.id === productId);
     if (custProd?.customerPricing?.[customerId] !== undefined) {
       return custProd.customerPricing[customerId];
     }
 
-    // 2. Check pricing rule overrides on global products
+    // 2. Pricing rule overrides on global products
     const rule = pricingRules.find(r => r.productId === productId && r.customerId === customerId);
     if (rule) return Number(rule.customizedPrice);
 
-    // 3. Fall back to base price
+    // 3. Base price fallback
     const product = products.find(p => p.id === productId);
     return product ? Number(product.basePrice) : null;
   }, [customerProducts, pricingRules, products]);
