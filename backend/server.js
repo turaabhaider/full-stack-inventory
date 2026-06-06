@@ -12,15 +12,16 @@ const app = express();
 // ── Security Headers ──────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── Logging Middleware (DEBUGGER: This prints every request to logs) ──────────
+// ── Logging Middleware ────────────────────────────────────────────────────────
 app.use((req, res, next) => {
-  console.log(`[REQUEST RECEIVED] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// ── CORS Configuration ────────────────────────────────────────────────────────
+// ── CORS Configuration (Railway Friendly) ─────────────────────────────────────
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*', 
+  // Use FRONTEND_URL from Railway Variables, fallback to specific origin if needed
+  origin: process.env.FRONTEND_URL || 'https://full-stack-inventory-production.up.railway.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -46,7 +47,7 @@ app.get('/api/products', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('Products error:', err);
-    res.status(500).json({ error: 'Database error' });
+    res.status(500).json([]); // Return empty array instead of error object
   }
 });
 
@@ -77,10 +78,10 @@ app.delete('/api/products/:id', async (req, res) => {
 app.get('/api/customers', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT id, name AS companyName, email, phone, role FROM users WHERE role = "client"');
-    res.json(rows);
+    res.json(rows || []);
   } catch (err) {
     console.error('Customers fetch error:', err);
-    res.status(500).json({ error: 'Database connection failed' });
+    res.status(500).json([]);
   }
 });
 
@@ -88,10 +89,10 @@ app.get('/api/customers', async (req, res) => {
 app.get('/api/pricing-rules', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM pricing_rules');
-    res.json(rows);
+    res.json(rows || []);
   } catch (err) {
     console.error('Pricing rules fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch pricing rules' });
+    res.status(500).json([]);
   }
 });
 
@@ -122,27 +123,26 @@ app.get('/api/customer-products', async (req, res) => {
   try {
     const [products] = await pool.query('SELECT * FROM customer_products');
     const [assignments] = await pool.query('SELECT * FROM customer_product_assignments');
-    const result = products.map(p => ({
+    const result = (products || []).map(p => ({
       ...p, 
-      assignedCustomers: assignments.filter(a => a.productId === p.id).map(a => a.customerId),
-      customerPricing: Object.fromEntries(assignments.filter(a => a.productId === p.id).map(a => [a.customerId, Number(a.price)]))
+      assignedCustomers: (assignments || []).filter(a => a.productId === p.id).map(a => a.customerId),
+      customerPricing: Object.fromEntries((assignments || []).filter(a => a.productId === p.id).map(a => [a.customerId, Number(a.price)]))
     }));
     res.json(result);
   } catch (err) {
     console.error('Customer products fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch customer products' });
+    res.status(500).json([]);
   }
 });
 
-// ── Global Error Handler (The Catch-All) ──────────────────────────────────────
+// ── Global Error Handler ──────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled Server Error:', err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // ── Start Server ──────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Gateway Live on Port ${PORT}`);
-    console.log(`CORS Policy: ${process.env.FRONTEND_URL || '*'}`);
 });
