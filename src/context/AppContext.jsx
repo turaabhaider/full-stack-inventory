@@ -36,36 +36,40 @@ export const AppProvider = ({ children }) => {
 
   // ── Fetch everything from DB ───────────────────────────────────────────────
   const fetchAll = useCallback(async () => {
-  setLoading(true);
-  try {
-    const responses = await Promise.all([
-      fetch(`${API_BASE}/products`),
-      fetch(`${API_BASE}/customers`),
-      fetch(`${API_BASE}/pricing-rules`),
-      fetch(`${API_BASE}/customer-products`),
-    ]);
+    setLoading(true);
+    try {
+      const [prodRes, custRes, rulesRes, cprodRes] = await Promise.all([
+        fetch(`${API_BASE}/products`).catch(() => ({ ok: false })),
+        fetch(`${API_BASE}/customers`).catch(() => ({ ok: false })),
+        fetch(`${API_BASE}/pricing-rules`).catch(() => ({ ok: false })),
+        fetch(`${API_BASE}/customer-products`).catch(() => ({ ok: false })),
+      ]);
 
-    const data = await Promise.all(responses.map(async (res) => {
-      if (!res.ok) return []; // If the server returns 500 or 404, return empty array
-      try {
-        const json = await res.json();
-        return Array.isArray(json) ? json : []; // Ensure it is ALWAYS an array
-      } catch {
-        return [];
-      }
-    }));
+      const getJson = async (res) => (res.ok ? await res.json() : []);
 
-    const [products, customers, rules, cprods] = data;
-    setProductsState(products);
-    setCustomers(customers);
-    setPricingRulesState(rules);
-    setCustomerProductsState(cprods);
-  } catch (err) {
-    console.error("Fetch failed:", err);
-  } finally {
-    setLoading(false);
-  }
-}, []);
+      const [products, customers, pricingRules, customerProducts] = await Promise.all([
+        getJson(prodRes),
+        getJson(custRes),
+        getJson(rulesRes),
+        getJson(cprodRes),
+      ]);
+
+      // Force these to be arrays even if the API returns something weird
+      setProductsState(Array.isArray(products) ? products : []);
+      setCustomers(Array.isArray(customers) ? customers : []);
+      setPricingRulesState(Array.isArray(pricingRules) ? pricingRules : []);
+      setCustomerProductsState(Array.isArray(customerProducts) ? customerProducts : []);
+      
+    } catch (err) {
+      console.error("Critical Data Fetch Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
