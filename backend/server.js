@@ -20,7 +20,6 @@ app.use((req, res, next) => {
 
 // ── CORS Configuration ────────────────────────────────────────────────────────
 const corsOptions = {
-  // If FRONTEND_URL is set in Railway, use it. Otherwise, fallback to *
   origin: process.env.FRONTEND_URL || '*', 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -59,49 +58,80 @@ app.post('/api/products', async (req, res) => {
       [productId, name, sku.toUpperCase().trim(), Number(basePrice), description, image]);
     res.status(201).json({ success: true, id: productId });
   } catch (err) {
+    console.error('Product creation error:', err);
     res.status(500).json({ error: 'Failed to create product' });
   }
 });
 
 app.delete('/api/products/:id', async (req, res) => {
-  await pool.query('DELETE FROM products WHERE id = ?', [req.params.id]);
-  res.json({ success: true });
+  try {
+    await pool.query('DELETE FROM products WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Product delete error:', err);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
 });
 
 // --- Customers ---
 app.get('/api/customers', async (req, res) => {
-  const [rows] = await pool.query('SELECT id, name AS companyName, email, phone, role FROM users WHERE role = "client"');
-  res.json(rows);
+  try {
+    const [rows] = await pool.query('SELECT id, name AS companyName, email, phone, role FROM users WHERE role = "client"');
+    res.json(rows);
+  } catch (err) {
+    console.error('Customers fetch error:', err);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
 });
 
 // --- Pricing Rules ---
 app.get('/api/pricing-rules', async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM pricing_rules');
-  res.json(rows);
+  try {
+    const [rows] = await pool.query('SELECT * FROM pricing_rules');
+    res.json(rows);
+  } catch (err) {
+    console.error('Pricing rules fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch pricing rules' });
+  }
 });
 
 app.post('/api/pricing-rules', async (req, res) => {
   const { productId, customerId, customizedPrice } = req.body;
-  await pool.query('INSERT INTO pricing_rules (id, productId, customerId, customizedPrice) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE customizedPrice = VALUES(customizedPrice)',
-    [`rule_${Date.now()}`, productId, customerId, Number(customizedPrice)]);
-  res.status(201).json({ success: true });
+  try {
+    await pool.query('INSERT INTO pricing_rules (id, productId, customerId, customizedPrice) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE customizedPrice = VALUES(customizedPrice)',
+      [`rule_${Date.now()}`, productId, customerId, Number(customizedPrice)]);
+    res.status(201).json({ success: true });
+  } catch (err) {
+    console.error('Pricing rules create error:', err);
+    res.status(500).json({ error: 'Failed to create pricing rule' });
+  }
 });
 
 app.delete('/api/pricing-rules/:id', async (req, res) => {
-  await pool.query('DELETE FROM pricing_rules WHERE id = ?', [req.params.id]);
-  res.json({ success: true });
+  try {
+    await pool.query('DELETE FROM pricing_rules WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Pricing rules delete error:', err);
+    res.status(500).json({ error: 'Failed to delete pricing rule' });
+  }
 });
 
 // --- Customer Products ---
 app.get('/api/customer-products', async (req, res) => {
-  const [products] = await pool.query('SELECT * FROM customer_products');
-  const [assignments] = await pool.query('SELECT * FROM customer_product_assignments');
-  const result = products.map(p => ({
-    ...p, 
-    assignedCustomers: assignments.filter(a => a.productId === p.id).map(a => a.customerId),
-    customerPricing: Object.fromEntries(assignments.filter(a => a.productId === p.id).map(a => [a.customerId, Number(a.price)]))
-  }));
-  res.json(result);
+  try {
+    const [products] = await pool.query('SELECT * FROM customer_products');
+    const [assignments] = await pool.query('SELECT * FROM customer_product_assignments');
+    const result = products.map(p => ({
+      ...p, 
+      assignedCustomers: assignments.filter(a => a.productId === p.id).map(a => a.customerId),
+      customerPricing: Object.fromEntries(assignments.filter(a => a.productId === p.id).map(a => [a.customerId, Number(a.price)]))
+    }));
+    res.json(result);
+  } catch (err) {
+    console.error('Customer products fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch customer products' });
+  }
 });
 
 // ── Global Error Handler (The Catch-All) ──────────────────────────────────────
