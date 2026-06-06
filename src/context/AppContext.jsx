@@ -36,42 +36,36 @@ export const AppProvider = ({ children }) => {
 
   // ── Fetch everything from DB ───────────────────────────────────────────────
   const fetchAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [prodRes, custRes, rulesRes, cprodRes] = await Promise.all([
-        fetch(`${API_BASE}/products`),
-        fetch(`${API_BASE}/customers`),
-        fetch(`${API_BASE}/pricing-rules`),
-        fetch(`${API_BASE}/customer-products`),
-      ]);
+  setLoading(true);
+  try {
+    const responses = await Promise.all([
+      fetch(`${API_BASE}/products`),
+      fetch(`${API_BASE}/customers`),
+      fetch(`${API_BASE}/pricing-rules`),
+      fetch(`${API_BASE}/customer-products`),
+    ]);
 
-      const safeJson = async (res) => {
-        if (!res.ok) return [];
-        try { return await res.json(); } catch { return []; }
-      };
+    const data = await Promise.all(responses.map(async (res) => {
+      if (!res.ok) return []; // If the server returns 500 or 404, return empty array
+      try {
+        const json = await res.json();
+        return Array.isArray(json) ? json : []; // Ensure it is ALWAYS an array
+      } catch {
+        return [];
+      }
+    }));
 
-      const [prods, custs, rules, cprods] = await Promise.all([
-        safeJson(prodRes),
-        safeJson(custRes),
-        safeJson(rulesRes),
-        safeJson(cprodRes),
-      ]);
-
-      setProductsState(Array.isArray(prods) ? prods : []);
-
-      // normalizeUser on every customer row — every string field is safe
-      setCustomers(
-        (Array.isArray(custs) ? custs : []).map(normalizeUser)
-      );
-
-      setPricingRulesState(Array.isArray(rules) ? rules : []);
-      setCustomerProductsState(Array.isArray(cprods) ? cprods : []);
-    } catch (err) {
-      console.error('AppContext fetchAll error:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const [products, customers, rules, cprods] = data;
+    setProductsState(products);
+    setCustomers(customers);
+    setPricingRulesState(rules);
+    setCustomerProductsState(cprods);
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
