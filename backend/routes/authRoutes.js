@@ -5,7 +5,6 @@ const router = express.Router();
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
-  // FIX: guard against missing body (e.g. wrong Content-Type header)
   const body = req.body || {};
   const { username, password, isAdmin } = body;
 
@@ -15,33 +14,37 @@ router.post('/login', async (req, res) => {
 
   try {
     if (isAdmin) {
-      // Admin password from Railway env var — falls back to default
-      // FIX: trim both sides so accidental whitespace in Railway variable doesn't break comparison
+      // Trim both sides — accidental whitespace in Railway var was causing mismatch
       const adminPassword = (process.env.ADMIN_PASSWORD || 'paktex 2026').trim();
-      const submittedPassword = String(password).trim();
+      const submitted     = String(password).trim();
 
-      if (submittedPassword !== adminPassword) {
+      if (submitted !== adminPassword) {
         return res.status(401).json({ success: false, error: 'Invalid Admin Password.' });
       }
 
-      // FIX: use LOWER() on both sides so "Daniyal Khan" vs "daniyal khan" doesn't matter
+      // Case-insensitive name match — "daniyal khan" matches "Daniyal Khan" in DB
+      // Return name as both `name` and `companyName` so frontend never gets undefined
       const [rows] = await pool.query(
-        'SELECT id, role, name AS companyName FROM users WHERE role = "admin" AND LOWER(name) = LOWER(?)',
+        `SELECT id, role, name, name AS companyName
+         FROM users
+         WHERE role = 'admin' AND LOWER(name) = LOWER(?)`,
         [username.trim()]
       );
 
       if (rows.length > 0) return res.json({ success: true, user: rows[0] });
-      return res.status(401).json({ success: false, error: 'Admin not found.' });
+      return res.status(401).json({ success: false, error: 'Admin not found in database.' });
 
     } else {
-      // Client login — match by name AND password
+      // Client login — case-insensitive name match
       const [rows] = await pool.query(
-        'SELECT id, role, name AS companyName, email, phone FROM users WHERE role = "client" AND LOWER(name) = LOWER(?) AND password = ?',
+        `SELECT id, role, name, name AS companyName, email, phone
+         FROM users
+         WHERE role = 'client' AND LOWER(name) = LOWER(?) AND password = ?`,
         [username.trim(), password]
       );
 
       if (rows.length > 0) return res.json({ success: true, user: rows[0] });
-      return res.status(401).json({ success: false, error: 'Invalid Client credentials.' });
+      return res.status(401).json({ success: false, error: 'Invalid credentials.' });
     }
   } catch (err) {
     console.error('Login DB error:', err);
@@ -51,42 +54,42 @@ router.post('/login', async (req, res) => {
 
 // ── Register ──────────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
-  // FIX: guard against undefined req.body (missing Content-Type header from frontend)
   const body = req.body || {};
-  const { name, email, phone, password } = body;
 
-  // FIX: trim + coerce to string before using — prevents .toLowerCase() crash
-  const safeName     = name     ? String(name).trim()     : '';
-  const safeEmail    = email    ? String(email).trim().toLowerCase() : '';
-  const safePhone    = phone    ? String(phone).trim()    : '';
-  const safePassword = password ? String(password)        : '';
+  // Coerce everything to string — prevents .toLowerCase crash if field is undefined
+  const name     = body.name     ? String(body.name).trim()             : '';
+  const email    = body.email    ? String(body.email).trim().toLowerCase() : '';
+  const phone    = body.phone    ? String(body.phone).trim()            : '';
+  const password = body.password ? String(body.password)                : '';
 
-  // Validation
-  if (!safeName || !safeEmail || !safePassword) {
+  if (!name || !email || !password) {
     return res.status(400).json({ success: false, error: 'Name, email and password are required.' });
   }
 
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, error: 'Password must be at least 6 characters.' });
+  }
+
   try {
-    // Check for existing user
+    // Check duplicate email (case-insensitive)
     const [existing] = await pool.query(
       'SELECT id FROM users WHERE LOWER(email) = ?',
-      [safeEmail]
+      [email]
     );
     if (existing.length > 0) {
       return res.status(409).json({ success: false, error: 'Email already registered.' });
     }
 
-    // Insert new client user
     const id = Date.now().toString();
     await pool.query(
       'INSERT INTO users (id, role, name, email, phone, password) VALUES (?, "client", ?, ?, ?, ?)',
-      [id, safeName, safeEmail, safePhone, safePassword]
+      [id, name, email, phone, password]
     );
 
     res.status(201).json({ success: true, message: 'Account created successfully.' });
   } catch (err) {
     console.error('REGISTRATION ERROR:', err);
-    res.status(500).json({ success: false, error: 'Internal Database Error.' });
+    res.status(500).json({ success: false, error: 'Database error during registration.' });
   }
 });
 

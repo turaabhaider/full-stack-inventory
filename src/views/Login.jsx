@@ -2,91 +2,83 @@ import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import './Login.css';
 
-// Hardcoded production URL — bypasses build-time env var issues
 const API_BASE = 'https://backend-inventory-production-e725.up.railway.app/api';
 
 const Login = () => {
   const { login } = useContext(AppContext);
-  const [isAdmin, setIsAdmin] = useState(true);
-  const [clientAction, setClientAction] = useState('login');
+  const [isAdmin,       setIsAdmin]       = useState(true);
+  const [clientAction,  setClientAction]  = useState('login');
+  const [username,      setUsername]      = useState('');
+  const [password,      setPassword]      = useState('');
+  const [errorMsg,      setErrorMsg]      = useState('');
+  const [successMsg,    setSuccessMsg]    = useState('');
+  const [isLoading,     setIsLoading]     = useState(false);
+  const [regForm,       setRegForm]       = useState({ name: '', email: '', phone: '', password: '' });
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', password: '' });
+  // ── Clear helpers ─────────────────────────────────────────────────────────
+  const clearMessages = () => { setErrorMsg(''); setSuccessMsg(''); };
 
-  // ── Login submit ──────────────────────────────────────────────────────────
+  const switchToAdmin = () => {
+    setIsAdmin(true); setUsername(''); setPassword(''); clearMessages();
+  };
+  const switchToClient = () => {
+    setIsAdmin(false); setUsername(''); setPassword(''); clearMessages();
+  };
+  const switchClientAction = (a) => {
+    setClientAction(a); clearMessages();
+  };
+
+  // ── Login ─────────────────────────────────────────────────────────────────
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
+    clearMessages();
     setIsLoading(true);
-
     try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
+      const res  = await fetch(`${API_BASE}/auth/login`, {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password, isAdmin }),
+        body:    JSON.stringify({ username: username.trim(), password, isAdmin }),
       });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         login(data.user);
       } else {
         setErrorMsg(data.error || 'Login failed.');
       }
     } catch (err) {
-      console.error('Connection Error:', err);
+      console.error('Login error:', err);
       setErrorMsg('Network error — please check your connection.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ── Register submit ───────────────────────────────────────────────────────
+  // ── Register ──────────────────────────────────────────────────────────────
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
+    clearMessages();
 
-    // FIX: validate before hitting network
-    if (!regForm.name.trim()) {
-      setErrorMsg('Full name is required.');
-      return;
-    }
-    if (!regForm.email.trim()) {
-      setErrorMsg('Email address is required.');
-      return;
-    }
-    if (regForm.password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters.');
-      return;
-    }
+    // Client-side validation first — no network call if basic checks fail
+    if (!regForm.name.trim())          return setErrorMsg('Full name is required.');
+    if (!regForm.email.trim())         return setErrorMsg('Email is required.');
+    if (regForm.password.length < 6)   return setErrorMsg('Password must be at least 6 characters.');
 
     setIsLoading(true);
-
     try {
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
+      const res  = await fetch(`${API_BASE}/auth/register`, {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body:    JSON.stringify({
           name:     regForm.name.trim(),
           email:    regForm.email.trim().toLowerCase(),
           phone:    regForm.phone.trim(),
           password: regForm.password,
         }),
       });
-
-      const data = await response.json();
-
+      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Account created! You can now sign in.');
         setClientAction('login');
-        // FIX: pre-fill the login name field with the registered name
-        // but clear password so user types it themselves
         setUsername(regForm.name.trim());
         setPassword('');
         setRegForm({ name: '', email: '', phone: '', password: '' });
@@ -101,103 +93,58 @@ const Login = () => {
     }
   };
 
-  // ── Tab switch helpers ────────────────────────────────────────────────────
-  const switchToAdmin = () => {
-    setIsAdmin(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-    setUsername('');
-    setPassword('');
-  };
-
-  const switchToClient = () => {
-    setIsAdmin(false);
-    setErrorMsg('');
-    setSuccessMsg('');
-    setUsername('');
-    setPassword('');
-  };
-
-  const switchClientAction = (action) => {
-    setClientAction(action);
-    setErrorMsg('');
-    setSuccessMsg('');
-  };
-
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="login-root">
       <div className="login-card">
+
         <div className="login-brand">
           <h2>Paktex Inventory</h2>
           <p>Commercial Distribution Control Panel</p>
         </div>
 
-        {/* Role tabs */}
         <div className="role-selector-tabs">
-          <button
-            type="button"
-            className={`role-tab-btn ${isAdmin ? 'active' : ''}`}
-            onClick={switchToAdmin}
-          >
+          <button type="button" className={`role-tab-btn ${isAdmin ? 'active' : ''}`}  onClick={switchToAdmin}>
             Logistics Admin
           </button>
-          <button
-            type="button"
-            className={`role-tab-btn ${!isAdmin ? 'active' : ''}`}
-            onClick={switchToClient}
-          >
+          <button type="button" className={`role-tab-btn ${!isAdmin ? 'active' : ''}`} onClick={switchToClient}>
             Client Portal
           </button>
         </div>
 
-        {/* Sign in / Create account toggle (client only) */}
         {!isAdmin && (
           <div className="client-action-toggle-container">
-            <button
-              type="button"
-              className={`client-action-link ${clientAction === 'login' ? 'active' : ''}`}
-              onClick={() => switchClientAction('login')}
-            >
+            <button type="button" className={`client-action-link ${clientAction === 'login'    ? 'active' : ''}`} onClick={() => switchClientAction('login')}>
               Sign In
             </button>
-            <button
-              type="button"
-              className={`client-action-link ${clientAction === 'register' ? 'active' : ''}`}
-              onClick={() => switchClientAction('register')}
-            >
+            <button type="button" className={`client-action-link ${clientAction === 'register' ? 'active' : ''}`} onClick={() => switchClientAction('register')}>
               Create Account
             </button>
           </div>
         )}
 
-        {/* Messages */}
-        {errorMsg   && <p className="msg-error">{errorMsg}</p>}
-        {successMsg && <p className="msg-success">{successMsg}</p>}
+        {errorMsg   && <p style={{ color: '#db4455', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>{errorMsg}</p>}
+        {successMsg && <p style={{ color: '#b39246', fontSize: '12px', textAlign: 'center', marginBottom: '16px', fontWeight: 'bold' }}>{successMsg}</p>}
 
-        {/* ── Login form (Admin or Client sign-in) ── */}
+        {/* ── Login form ── */}
         {(isAdmin || clientAction === 'login') && (
           <form onSubmit={handleAuthSubmit}>
             <div className="input-group-container">
               <label>{isAdmin ? 'Identification Code' : 'Client Name'}</label>
               <input
-                type="text"
-                className="lux-input-field"
-                required
+                type="text" className="lux-input-field" required
                 autoComplete="username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={e => setUsername(e.target.value)}
               />
             </div>
             <div className="input-group-container">
               <label>Security Passphrase</label>
               <input
-                type="password"
-                className="lux-input-field"
-                required
+                type="password" className="lux-input-field" required
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
               />
             </div>
             <button type="submit" className="login-submit-btn" disabled={isLoading}>
@@ -206,57 +153,39 @@ const Login = () => {
           </form>
         )}
 
-        {/* ── Registration form (Client only) ── */}
+        {/* ── Register form ── */}
         {!isAdmin && clientAction === 'register' && (
           <form onSubmit={handleRegistrationSubmit}>
             <div className="input-group-container">
               <label>Full Name</label>
-              <input
-                type="text"
-                className="lux-input-field"
-                required
-                autoComplete="name"
+              <input type="text" className="lux-input-field" required autoComplete="name"
                 value={regForm.name}
-                onChange={e => setRegForm({ ...regForm, name: e.target.value })}
-              />
+                onChange={e => setRegForm({ ...regForm, name: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Email Address</label>
-              <input
-                type="email"
-                className="lux-input-field"
-                required
-                autoComplete="email"
+              <input type="email" className="lux-input-field" required autoComplete="email"
                 value={regForm.email}
-                onChange={e => setRegForm({ ...regForm, email: e.target.value })}
-              />
+                onChange={e => setRegForm({ ...regForm, email: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Phone Number <span style={{ opacity: 0.5, fontSize: '11px' }}>(no +)</span></label>
-              <input
-                type="tel"
-                className="lux-input-field"
-                autoComplete="tel"
+              <input type="tel" className="lux-input-field" autoComplete="tel"
                 value={regForm.phone}
-                onChange={e => setRegForm({ ...regForm, phone: e.target.value })}
-              />
+                onChange={e => setRegForm({ ...regForm, phone: e.target.value })} />
             </div>
             <div className="input-group-container">
               <label>Secure Password</label>
-              <input
-                type="password"
-                className="lux-input-field"
-                required
-                autoComplete="new-password"
+              <input type="password" className="lux-input-field" required autoComplete="new-password"
                 value={regForm.password}
-                onChange={e => setRegForm({ ...regForm, password: e.target.value })}
-              />
+                onChange={e => setRegForm({ ...regForm, password: e.target.value })} />
             </div>
             <button type="submit" className="login-submit-btn" disabled={isLoading}>
               {isLoading ? 'Registering...' : 'Register Corporate Account'}
             </button>
           </form>
         )}
+
       </div>
     </div>
   );
