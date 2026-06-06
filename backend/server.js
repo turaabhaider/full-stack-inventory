@@ -18,36 +18,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── CORS Configuration (Railway Friendly) ─────────────────────────────────────
+// ── CORS — reads FRONTEND_URL from Railway Variables ─────────────────────────
+const allowedOrigin = process.env.FRONTEND_URL || 'https://full-stack-inventory-production.up.railway.app';
+
 const corsOptions = {
-  // Use FRONTEND_URL from Railway Variables, fallback to specific origin if needed
-  origin: process.env.FRONTEND_URL || 'https://full-stack-inventory-production.up.railway.app',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (origin === allowedOrigin) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+app.options('*', cors(corsOptions));
 
-// ── Middleware ────────────────────────────────────────────────────────────────
+// ── Body Parsing ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.status(200).send('API Gateway is operational'));
 
-// ── Routes ────────────────────────────────────────────────────────────────────
+// ── Auth Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 
-// --- Products Routes ---
+// ── Products ──────────────────────────────────────────────────────────────────
 app.get('/api/products', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM products');
-    res.json(rows);
+    res.json(rows || []);
   } catch (err) {
     console.error('Products error:', err);
-    res.status(500).json([]); // Return empty array instead of error object
+    res.status(500).json([]);
   }
 });
 
@@ -55,8 +61,10 @@ app.post('/api/products', async (req, res) => {
   const { id, name, sku, basePrice, description, image } = req.body;
   try {
     const productId = id || `prod_${Date.now()}`;
-    await pool.query('INSERT INTO products (id, name, sku, basePrice, description, image) VALUES (?, ?, ?, ?, ?, ?)',
-      [productId, name, sku.toUpperCase().trim(), Number(basePrice), description, image]);
+    await pool.query(
+      'INSERT INTO products (id, name, sku, basePrice, description, image) VALUES (?, ?, ?, ?, ?, ?)',
+      [productId, name, sku.toUpperCase().trim(), Number(basePrice), description, image]
+    );
     res.status(201).json({ success: true, id: productId });
   } catch (err) {
     console.error('Product creation error:', err);
@@ -74,10 +82,12 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// --- Customers ---
+// ── Customers ─────────────────────────────────────────────────────────────────
 app.get('/api/customers', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, name AS companyName, email, phone, role FROM users WHERE role = "client"');
+    const [rows] = await pool.query(
+      'SELECT id, name, name AS companyName, email, phone, role FROM users WHERE role = "client"'
+    );
     res.json(rows || []);
   } catch (err) {
     console.error('Customers fetch error:', err);
@@ -85,7 +95,7 @@ app.get('/api/customers', async (req, res) => {
   }
 });
 
-// --- Pricing Rules ---
+// ── Pricing Rules ─────────────────────────────────────────────────────────────
 app.get('/api/pricing-rules', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM pricing_rules');
@@ -99,8 +109,10 @@ app.get('/api/pricing-rules', async (req, res) => {
 app.post('/api/pricing-rules', async (req, res) => {
   const { productId, customerId, customizedPrice } = req.body;
   try {
-    await pool.query('INSERT INTO pricing_rules (id, productId, customerId, customizedPrice) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE customizedPrice = VALUES(customizedPrice)',
-      [`rule_${Date.now()}`, productId, customerId, Number(customizedPrice)]);
+    await pool.query(
+      'INSERT INTO pricing_rules (id, productId, customerId, customizedPrice) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE customizedPrice = VALUES(customizedPrice)',
+      [`rule_${Date.now()}`, productId, customerId, Number(customizedPrice)]
+    );
     res.status(201).json({ success: true });
   } catch (err) {
     console.error('Pricing rules create error:', err);
@@ -118,20 +130,61 @@ app.delete('/api/pricing-rules/:id', async (req, res) => {
   }
 });
 
-// --- Customer Products ---
+// ── Customer Products ─────────────────────────────────────────────────────────
 app.get('/api/customer-products', async (req, res) => {
   try {
-    const [products] = await pool.query('SELECT * FROM customer_products');
+    const [products]    = await pool.query('SELECT * FROM customer_products');
     const [assignments] = await pool.query('SELECT * FROM customer_product_assignments');
     const result = (products || []).map(p => ({
-      ...p, 
-      assignedCustomers: (assignments || []).filter(a => a.productId === p.id).map(a => a.customerId),
-      customerPricing: Object.fromEntries((assignments || []).filter(a => a.productId === p.id).map(a => [a.customerId, Number(a.price)]))
+      ...p,
+      assignedCustomers: (assignments || [])
+        .filter(a => a.productId === p.id)
+        .map(a => a.customerId),
+      customerPricing: Object.fromEntries(
+        (assignments || [])
+          .filter(a => a.productId === p.id)
+          .map(a => [a.customerId, Number(a.price)])
+      ),
     }));
     res.json(result);
   } catch (err) {
     console.error('Customer products fetch error:', err);
     res.status(500).json([]);
+  }
+});
+
+app.post('/api/customer-products', async (req, res) => {
+  const { id, name, sku, basePrice, description, image, assignedCustomers, customerPricing } = req.body;
+  try {
+    const productId = id || `cprod_${Date.now()}`;
+    await pool.query(
+      'INSERT INTO customer_products (id, name, sku, basePrice, description, image) VALUES (?, ?, ?, ?, ?, ?)',
+      [productId, name, sku, Number(basePrice), description, image]
+    );
+    if (Array.isArray(assignedCustomers)) {
+      for (const cId of assignedCustomers) {
+        const price = customerPricing?.[cId] ?? Number(basePrice);
+        await pool.query(
+          'INSERT INTO customer_product_assignments (productId, customerId, price) VALUES (?, ?, ?)',
+          [productId, cId, price]
+        );
+      }
+    }
+    res.status(201).json({ success: true, id: productId });
+  } catch (err) {
+    console.error('Customer product create error:', err);
+    res.status(500).json({ error: 'Failed to create customer product' });
+  }
+});
+
+app.delete('/api/customer-products/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM customer_product_assignments WHERE productId = ?', [req.params.id]);
+    await pool.query('DELETE FROM customer_products WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Customer product delete error:', err);
+    res.status(500).json({ error: 'Failed to delete customer product' });
   }
 });
 
@@ -144,5 +197,5 @@ app.use((err, req, res, next) => {
 // ── Start Server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Gateway Live on Port ${PORT}`);
+  console.log(`🚀 Gateway Live on Port ${PORT}`);
 });
