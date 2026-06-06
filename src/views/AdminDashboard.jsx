@@ -6,12 +6,13 @@ import {
 } from 'lucide-react';
 import './AdminDashboard.css';
 
-// Helper: safely get display name for a customer object.
-// The DB returns `name` aliased as `companyName` — this guard
-// prevents "Cannot read properties of undefined (reading 'toLowerCase')"
-// if the alias is ever missing.
-const getClientName = (client) =>
-  client?.companyName || client?.name || 'Unknown Client';
+// ── SAFE name helper — this is the fix for ALL toLowerCase crashes ────────────
+// Never call .name or .companyName directly — always go through this.
+const getClientName = (client) => {
+  if (!client) return 'Unknown Client';
+  const n = client.name || client.companyName;
+  return (n && String(n).trim()) ? String(n).trim() : 'Unknown Client';
+};
 
 const ImageInput = ({ value, onChange, preview, onPreview }) => {
   const fileRef = useRef(null);
@@ -20,13 +21,8 @@ const ImageInput = ({ value, onChange, preview, onPreview }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result;
-      onPreview(base64String);
-      onChange(base64String);
-    };
+    reader.onloadend = () => { onPreview(reader.result); onChange(reader.result); };
     reader.readAsDataURL(file);
   };
 
@@ -36,32 +32,27 @@ const ImageInput = ({ value, onChange, preview, onPreview }) => {
         <button type="button" className={`ad-mode-btn ${mode === 'url' ? 'active' : ''}`} onClick={() => setMode('url')}>
           <Link size={11} /> URL
         </button>
-        <button type="button" className={`ad-mode-btn ${mode === 'file' ? 'active' : ''}`} onClick={() => { setMode('file'); fileRef.current?.click(); }}>
+        <button type="button" className={`ad-mode-btn ${mode === 'file' ? 'active' : ''}`}
+          onClick={() => { setMode('file'); fileRef.current?.click(); }}>
           <Upload size={11} /> Upload
         </button>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       </div>
-
       {mode === 'url' && (
         <input className="ad-input" type="url" value={value}
           onChange={e => { onChange(e.target.value); onPreview(e.target.value); }}
           placeholder="https://images.unsplash.com/..." />
       )}
-
       {mode === 'file' && (
         <div className="ad-file-drop-zone" onClick={() => fileRef.current?.click()}>
-          {preview ? (
-            <img src={preview} alt="preview" className="ad-file-preview-img" />
-          ) : (
-            <><Upload size={20} style={{ color: '#ccc', marginBottom: '6px' }} /><span>Click to select image from device</span></>
-          )}
+          {preview
+            ? <img src={preview} alt="preview" className="ad-file-preview-img" />
+            : <><Upload size={20} style={{ color: '#ccc', marginBottom: '6px' }} /><span>Click to select image from device</span></>}
         </div>
       )}
-
       {preview && (
         <div className="ad-image-preview-strip">
-          <img src={preview} alt="preview" />
-          <span>Preview</span>
+          <img src={preview} alt="preview" /><span>Preview</span>
         </div>
       )}
     </div>
@@ -80,11 +71,8 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
   const [allSamePrice, setAllSamePrice] = useState(true);
   const [perCustomerPrices, setPerCustomerPrices] = useState({});
 
-  const toggleCustomer = (id) => {
-    setSelectedCustomers(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    );
-  };
+  const toggleCustomer = (id) =>
+    setSelectedCustomers(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
 
   const handleSubmit = () => {
     if (!name || !sku || selectedCustomers.length === 0) return;
@@ -94,8 +82,7 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
       sku: sku.toUpperCase().trim(),
       description,
       basePrice: Number(basePrice) || 0,
-      image: image.trim() ||
-        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+      image: image.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
       isCustomerProduct: true,
       assignedCustomers: selectedCustomers,
       customerPricing: selectedCustomers.reduce((acc, cId) => {
@@ -109,8 +96,6 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
     onClose();
   };
 
-  const step1Valid = name && sku && basePrice;
-
   return (
     <div className="ad-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="ad-modal-box">
@@ -118,7 +103,6 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
           <h2>Add Product to Client(s)</h2>
           <button className="ad-modal-close" onClick={onClose}><X size={20} /></button>
         </div>
-
         <div className="ad-modal-body">
           {step === 1 && (
             <>
@@ -143,12 +127,11 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                 <label className="ad-label">Product Image</label>
                 <ImageInput value={image} onChange={setImage} preview={imagePreview} onPreview={setImagePreview} />
               </div>
-              <button className="ad-btn-gold" disabled={!step1Valid} onClick={() => setStep(2)}>
+              <button className="ad-btn-gold" disabled={!name || !sku || !basePrice} onClick={() => setStep(2)}>
                 Continue → Select Clients &amp; Pricing
               </button>
             </>
           )}
-
           {step === 2 && (
             <>
               <span className="ad-modal-step-label">Step 2 of 2 — Assign Clients &amp; Set Prices</span>
@@ -156,22 +139,21 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                 <label className="ad-label">Assign to Clients * (select one or more)</label>
                 <div className="ad-customer-select-list">
                   {customers.map(c => (
-                    <div key={c.id} className={`ad-customer-chip ${selectedCustomers.includes(c.id) ? 'selected' : ''}`} onClick={() => toggleCustomer(c.id)}>
-                      {/* FIX: use getClientName helper — never call .toLowerCase() on undefined */}
+                    <div key={c.id}
+                      className={`ad-customer-chip ${selectedCustomers.includes(c.id) ? 'selected' : ''}`}
+                      onClick={() => toggleCustomer(c.id)}>
                       <span>{getClientName(c)}</span>
                       {selectedCustomers.includes(c.id) && <CheckCircle size={14} />}
                     </div>
                   ))}
                 </div>
               </div>
-
               {selectedCustomers.length > 0 && (
                 <>
                   <label className="ad-same-price-toggle">
                     <input type="checkbox" checked={allSamePrice} onChange={e => setAllSamePrice(e.target.checked)} />
                     Same price for all selected clients
                   </label>
-
                   {!allSamePrice && (
                     <div className="ad-form-group">
                       <label className="ad-label">Per-Client Contract Price (₨)</label>
@@ -180,7 +162,8 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                         return (
                           <div key={cId} className="ad-per-client-row">
                             <span className="ad-per-client-row-name">{getClientName(client)}</span>
-                            <input className="ad-input" type="number" placeholder={`Base: ₨ ${basePrice}`}
+                            <input className="ad-input" type="number"
+                              placeholder={`Base: ₨ ${basePrice}`}
                               value={perCustomerPrices[cId] || ''}
                               onChange={e => setPerCustomerPrices(prev => ({ ...prev, [cId]: e.target.value }))} />
                           </div>
@@ -190,7 +173,6 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
                   )}
                 </>
               )}
-
               <div className="ad-modal-btn-row">
                 <button className="ad-btn-outline" onClick={() => setStep(1)}>← Back</button>
                 <button className="ad-btn-gold" disabled={selectedCustomers.length === 0} onClick={handleSubmit}>
@@ -214,19 +196,17 @@ const AdminDashboard = () => {
     user
   } = useContext(AppContext);
 
-  const [currentTab, setCurrentTab] = useState('clients');
-  const [selectedClientId, setSelectedClientId] = useState(customers[0]?.id || '');
-  const [targetProductId, setTargetProductId] = useState('');
-  const [customPriceInput, setCustomPriceInput] = useState('');
-
-  const [newProdName, setNewProdName] = useState('');
-  const [newProdSku, setNewProdSku] = useState('');
-  const [newProdPrice, setNewProdPrice] = useState('');
-  const [newProdImg, setNewProdImg] = useState('');
-  const [newProdImgPreview, setNewProdImgPreview] = useState('');
-  const [newProdDesc, setNewProdDesc] = useState('');
-
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [currentTab,        setCurrentTab]        = useState('clients');
+  const [selectedClientId,  setSelectedClientId]  = useState(customers[0]?.id || '');
+  const [targetProductId,   setTargetProductId]   = useState('');
+  const [customPriceInput,  setCustomPriceInput]  = useState('');
+  const [newProdName,       setNewProdName]        = useState('');
+  const [newProdSku,        setNewProdSku]         = useState('');
+  const [newProdPrice,      setNewProdPrice]       = useState('');
+  const [newProdImg,        setNewProdImg]         = useState('');
+  const [newProdImgPreview, setNewProdImgPreview]  = useState('');
+  const [newProdDesc,       setNewProdDesc]        = useState('');
+  const [showAddModal,      setShowAddModal]       = useState(false);
 
   const handleAssignPriceOverride = (e) => {
     e.preventDefault();
@@ -244,8 +224,7 @@ const AdminDashboard = () => {
       sku: newProdSku.toUpperCase().trim(),
       basePrice: Number(newProdPrice),
       description: newProdDesc,
-      image: newProdImg.trim() ||
-        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+      image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
     if (setProducts) setProducts(prev => [...prev, obj]);
     setNewProdName(''); setNewProdSku(''); setNewProdPrice('');
@@ -253,10 +232,11 @@ const AdminDashboard = () => {
   };
 
   const handleAddCustomerProduct = (prod) => setCustomerProducts(prev => [...prev, prod]);
-  const deleteCustomerProduct = (id) => setCustomerProducts(prev => prev.filter(p => p.id !== id));
+  const deleteCustomerProduct    = (id)   => setCustomerProducts(prev => prev.filter(p => p.id !== id));
 
-  const selectedClient = customers.find(c => c.id === selectedClientId);
-  const isolatedRules = pricingRules.filter(r => r.customerId === selectedClientId);
+  // Safe lookups — never crash if selectedClientId is stale
+  const selectedClient  = customers.find(c => c.id === selectedClientId) || null;
+  const isolatedRules   = pricingRules.filter(r => r.customerId === selectedClientId);
   const clientCustProds = customerProducts.filter(p => p.assignedCustomers?.includes(selectedClientId));
 
   const NAV_ITEMS = [
@@ -284,10 +264,7 @@ const AdminDashboard = () => {
       )}
 
       <aside className="ad-sidebar">
-        <div className="ad-sidebar-logo">
-          <h2>Paktex</h2>
-          <span>Inventory Console</span>
-        </div>
+        <div className="ad-sidebar-logo"><h2>Paktex</h2><span>Inventory Console</span></div>
         <nav className="ad-nav-group">
           {NAV_ITEMS.map(({ key, icon, label }) => (
             <button key={key} className={`ad-nav-btn ${currentTab === key ? 'active' : ''}`} onClick={() => setCurrentTab(key)}>
@@ -296,7 +273,7 @@ const AdminDashboard = () => {
           ))}
         </nav>
         <div className="ad-sidebar-footer">
-          <p className="ad-operator-label">Operator: <strong>{user?.name || user?.companyName || 'System Admin'}</strong></p>
+          <p className="ad-operator-label">Operator: <strong>{getClientName(user)}</strong></p>
           <button className="ad-logout-btn" onClick={logout}><LogOut size={14} /> Log Out Session</button>
         </div>
       </aside>
@@ -305,12 +282,11 @@ const AdminDashboard = () => {
         <header className="ad-viewport-header">
           <h1>{TAB_TITLES[currentTab]}</h1>
           <div className="ad-header-actions">
-            <div className="ad-status-pill">
-              <CheckCircle size={10} color="#b39246" /> Console Active
-            </div>
+            <div className="ad-status-pill"><CheckCircle size={10} color="#b39246" /> Console Active</div>
           </div>
         </header>
 
+        {/* ── CLIENT PRICING TAB ── */}
         {currentTab === 'clients' && (
           <div className="ad-split-grid">
             <div className="ad-card">
@@ -326,18 +302,18 @@ const AdminDashboard = () => {
               ) : (
                 <div className="ad-client-list">
                   {customers.map(client => {
-                    const ruleCount = pricingRules.filter(r => r.customerId === client.id).length;
+                    const ruleCount     = pricingRules.filter(r => r.customerId === client.id).length;
                     const custProdCount = customerProducts.filter(p => p.assignedCustomers?.includes(client.id)).length;
                     return (
-                      <div key={client.id} className={`ad-client-card ${selectedClientId === client.id ? 'active' : ''}`}
+                      <div key={client.id}
+                        className={`ad-client-card ${selectedClientId === client.id ? 'active' : ''}`}
                         onClick={() => { setSelectedClientId(client.id); setTargetProductId(''); }}>
                         <div>
-                          {/* FIX: use getClientName — was crashing on undefined.toLowerCase() */}
                           <p className="ad-client-card-name">{getClientName(client)}</p>
                           <span className="ad-client-card-sub">{client.city || 'Standard Territory'}</span>
                         </div>
                         <div className="ad-client-card-badges">
-                          {ruleCount > 0 && <span className="ad-override-pill">{ruleCount} Price Rules</span>}
+                          {ruleCount     > 0 && <span className="ad-override-pill">{ruleCount} Price Rules</span>}
                           {custProdCount > 0 && <span className="ad-prod-pill">{custProdCount} Products</span>}
                         </div>
                       </div>
@@ -361,7 +337,9 @@ const AdminDashboard = () => {
                         <label className="ad-label">Select Baseline Material</label>
                         <div className="ad-product-plate-list">
                           {products.map(prod => (
-                            <div key={prod.id} className={`ad-product-plate ${targetProductId === prod.id ? 'selected' : ''}`} onClick={() => setTargetProductId(prod.id)}>
+                            <div key={prod.id}
+                              className={`ad-product-plate ${targetProductId === prod.id ? 'selected' : ''}`}
+                              onClick={() => setTargetProductId(prod.id)}>
                               <div className="ad-product-plate-left">
                                 <img src={prod.image || 'https://via.placeholder.com/40'} alt="" />
                                 <div>
@@ -371,7 +349,7 @@ const AdminDashboard = () => {
                               </div>
                               <div className="ad-product-plate-right">
                                 <span className="ad-product-plate-label">Standard</span>
-                                <span className="ad-product-plate-price">₨ {prod.basePrice.toLocaleString()}</span>
+                                <span className="ad-product-plate-price">₨ {Number(prod.basePrice).toLocaleString()}</span>
                               </div>
                             </div>
                           ))}
@@ -383,7 +361,9 @@ const AdminDashboard = () => {
                           placeholder={targetProductId ? 'Enter client-specific rate' : 'Select a product first'}
                           value={customPriceInput} onChange={e => setCustomPriceInput(e.target.value)} />
                       </div>
-                      <button type="submit" className="ad-btn-black" disabled={!targetProductId}>Apply Contract Price Override</button>
+                      <button type="submit" className="ad-btn-black" disabled={!targetProductId}>
+                        Apply Contract Price Override
+                      </button>
                     </form>
 
                     <h4 className="ad-divider-title">Active Price Overrides — {getClientName(selectedClient)}</h4>
@@ -396,7 +376,7 @@ const AdminDashboard = () => {
                           <div key={rule.id} className="ad-rule-row">
                             <div>
                               <span className="ad-rule-row-name">{prod?.name}</span>
-                              <span className="ad-rule-row-base">Base: ₨ {prod?.basePrice?.toLocaleString()}</span>
+                              <span className="ad-rule-row-base">Base: ₨ {Number(prod?.basePrice || 0).toLocaleString()}</span>
                             </div>
                             <div className="ad-rule-row-right">
                               <span className="ad-rule-price">₨ {Number(rule.customizedPrice).toLocaleString()}</span>
@@ -443,6 +423,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* ── ALL CLIENTS MATRIX TAB ── */}
         {currentTab === 'all-clients' && (
           <div className="ad-matrix-stack">
             <div className="ad-card">
@@ -466,23 +447,27 @@ const AdminDashboard = () => {
                             const rule = pricingRules.find(r => r.customerId === client.id && r.productId === prod.id);
                             return (
                               <td key={prod.id}>
-                                <span className={`ad-matrix-price ${rule ? 'gold' : ''}`}>₨ {rule ? Number(rule.customizedPrice).toLocaleString() : Number(prod.basePrice).toLocaleString()}</span>
+                                <span className={`ad-matrix-price ${rule ? 'gold' : ''}`}>
+                                  ₨ {rule ? Number(rule.customizedPrice).toLocaleString() : Number(prod.basePrice).toLocaleString()}
+                                </span>
                                 <span className={`ad-matrix-price-label ${rule ? 'gold' : 'muted'}`}>{rule ? 'Contract' : 'Standard'}</span>
                               </td>
                             );
                           })}
                           {customerProducts.length > 0 && (
                             <td>
-                              {custProds.length === 0 ? <span style={{ color: '#ddd', fontSize: '12px' }}>—</span> : (
-                                <div className="ad-matrix-cust-prod-list">
-                                  {custProds.map(cp => (
-                                    <div key={cp.id} className="ad-matrix-cust-prod-item">
-                                      <span>{cp.name}</span>
-                                      <em>₨ {(cp.customerPricing?.[client.id] || cp.basePrice).toLocaleString()}</em>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                              {custProds.length === 0
+                                ? <span style={{ color: '#ddd', fontSize: '12px' }}>—</span>
+                                : (
+                                  <div className="ad-matrix-cust-prod-list">
+                                    {custProds.map(cp => (
+                                      <div key={cp.id} className="ad-matrix-cust-prod-item">
+                                        <span>{cp.name}</span>
+                                        <em>₨ {(cp.customerPricing?.[client.id] || cp.basePrice).toLocaleString()}</em>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                             </td>
                           )}
                         </tr>
@@ -495,6 +480,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* ── GLOBAL CATALOG TAB ── */}
         {currentTab === 'global-catalog' && (
           <div className="ad-catalog-split">
             <div className="ad-card">
@@ -523,7 +509,6 @@ const AdminDashboard = () => {
                 <button type="submit" className="ad-btn-black">Inject Into Base Pipeline</button>
               </form>
             </div>
-
             <div className="ad-card">
               <div className="ad-card-header">
                 <h3>Base Inventory</h3>
@@ -539,7 +524,7 @@ const AdminDashboard = () => {
                       {p.description && <p>{p.description}</p>}
                       <div className="ad-catalog-price-row">
                         <span>Baseline</span>
-                        <strong>₨ {p.basePrice.toLocaleString()}</strong>
+                        <strong>₨ {Number(p.basePrice).toLocaleString()}</strong>
                       </div>
                     </div>
                   </div>
@@ -549,6 +534,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* ── CUSTOMER PRODUCTS TAB ── */}
         {currentTab === 'customer-products' && (
           <div>
             <div className="ad-cust-tab-banner">
@@ -560,12 +546,13 @@ const AdminDashboard = () => {
                 <PlusCircle size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Add Product
               </button>
             </div>
-
             {customerProducts.length === 0 ? (
               <div className="ad-empty-box-large">
                 <Package size={32} style={{ color: '#ddd' }} />
                 <span>No client-specific products created yet.</span>
-                <button className="ad-btn-gold" style={{ width: 'auto', padding: '12px 28px' }} onClick={() => setShowAddModal(true)}>Create First Client Product</button>
+                <button className="ad-btn-gold" style={{ width: 'auto', padding: '12px 28px' }} onClick={() => setShowAddModal(true)}>
+                  Create First Client Product
+                </button>
               </div>
             ) : (
               customers.map(client => {
@@ -588,7 +575,9 @@ const AdminDashboard = () => {
                             <div className="ad-catalog-price-row">
                               <div>
                                 <span>Client Rate</span>
-                                <strong style={{ color: '#b39246', display: 'block' }}>₨ {(cp.customerPricing?.[client.id] || cp.basePrice).toLocaleString()}</strong>
+                                <strong style={{ color: '#b39246', display: 'block' }}>
+                                  ₨ {(cp.customerPricing?.[client.id] || cp.basePrice).toLocaleString()}
+                                </strong>
                               </div>
                               <button className="ad-delete-btn" onClick={() => deleteCustomerProduct(cp.id)}><Trash2 size={13} /></button>
                             </div>
