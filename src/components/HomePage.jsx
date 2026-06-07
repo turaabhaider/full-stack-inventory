@@ -114,7 +114,7 @@ const HomePage = ({ onLoginClick }) => {
         <div className="hp-stat-divider" />
         <div className="hp-stat"><span className="hp-stat-num">B2B</span><span className="hp-stat-label">Wholesale Only</span></div>
         <div className="hp-stat-divider" />
-        <div className="hp-stat"><span className="hp-stat-num">PKR</span><span className="hp-stat-label">Contract Pricing</span></div>
+        <div className="hp-stat"><span className="hp-stat-num">USD</span><span className="hp-stat-label">Contract Pricing</span></div>
         <div className="hp-stat-divider" />
         <div className="hp-stat"><span className="hp-stat-num">✦</span><span className="hp-stat-label">Premium Grade</span></div>
       </div>
