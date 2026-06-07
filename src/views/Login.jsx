@@ -4,9 +4,9 @@ import './Login.css';
 
 const API_BASE = 'https://backend-inventory-production-e725.up.railway.app/api';
 
-const Login = () => {
+const Login = ({ onBack }) => {
   const { login } = useContext(AppContext);
-  const [isAdmin,      setIsAdmin]      = useState(true);
+  const [isAdmin,      setIsAdmin]      = useState(false);
   const [clientAction, setClientAction] = useState('login');
   const [username,     setUsername]     = useState('');
   const [password,     setPassword]     = useState('');
@@ -16,37 +16,28 @@ const Login = () => {
   const [regForm,      setRegForm]      = useState({ name: '', email: '', phone: '', password: '' });
 
   const clearMessages = () => { setErrorMsg(''); setSuccessMsg(''); };
-
-  const switchToAdmin = () => { setIsAdmin(true);  setUsername(''); setPassword(''); clearMessages(); };
+  const switchToAdmin  = () => { setIsAdmin(true);  setUsername(''); setPassword(''); clearMessages(); };
   const switchToClient = () => { setIsAdmin(false); setUsername(''); setPassword(''); clearMessages(); };
-  const switchAction = (a) => { setClientAction(a); clearMessages(); };
+  const switchAction   = (a) => { setClientAction(a); clearMessages(); };
 
-  // ── Login — pure API call, NO local customers.find() ─────────────────────
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     clearMessages();
     setIsLoading(true);
     try {
       const res  = await fetch(`${API_BASE}/auth/login`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ username: username.trim(), password, isAdmin }),
+        body: JSON.stringify({ username: username.trim(), password, isAdmin }),
       });
       const data = await res.json();
-      if (res.ok && data.success) {
-        login(data.user);
-      } else {
-        setErrorMsg(data.error || 'Login failed.');
-      }
+      if (res.ok && data.success) { login(data.user); }
+      else { setErrorMsg(data.error || 'Login failed.'); }
     } catch (err) {
-      console.error('Login error:', err);
       setErrorMsg('Network error — please check your connection.');
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   };
 
-  // ── Register ───────────────────────────────────────────────────────────────
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     clearMessages();
@@ -56,9 +47,9 @@ const Login = () => {
     setIsLoading(true);
     try {
       const res  = await fetch(`${API_BASE}/auth/register`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
+        body: JSON.stringify({
           name:     regForm.name.trim(),
           email:    regForm.email.trim().toLowerCase(),
           phone:    regForm.phone.trim(),
@@ -72,20 +63,23 @@ const Login = () => {
         setUsername(regForm.name.trim());
         setPassword('');
         setRegForm({ name: '', email: '', phone: '', password: '' });
-      } else {
-        setErrorMsg(data.error || 'Registration failed.');
-      }
+      } else { setErrorMsg(data.error || 'Registration failed.'); }
     } catch (err) {
-      console.error('Registration error:', err);
       setErrorMsg('Service unreachable — please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   };
 
   return (
     <div className="login-root">
       <div className="login-card">
+
+        {/* Back to homepage */}
+        {onBack && (
+          <button className="login-back-btn" onClick={onBack}>
+            ← Back to Home
+          </button>
+        )}
+
         <div className="login-brand">
           <h2>Paktex Inventory</h2>
           <p>Commercial Distribution Control Panel</p>
