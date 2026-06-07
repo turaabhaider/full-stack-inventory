@@ -3,9 +3,9 @@ import { AppContext } from '../context/AppContext';
 import ProductDetail from './ProductDetail';
 import './HomePage.css';
 
-// --- Railway Positive: Reliable Unsplash Image Assets ---
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=crop&w=1600&q=80';
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80';
+// Your exact requested white fabric image
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1972';
+
 
 const HomePage = ({ onLoginClick }) => {
   const { products = [], customerProducts = [] } = useContext(AppContext);
@@ -13,7 +13,6 @@ const HomePage = ({ onLoginClick }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const cardRefs = useRef([]);
 
-  // Safely combine products
   const allProducts = [
     ...products,
     ...customerProducts.filter(cp => cp && cp.isCustomerProduct),
@@ -38,7 +37,6 @@ const HomePage = ({ onLoginClick }) => {
     return () => observer.disconnect();
   }, [allProducts.length, selectedProduct]);
 
-  // ── Product Detail View ──
   if (selectedProduct) {
     return (
       <div className="hp-root">
@@ -62,7 +60,6 @@ const HomePage = ({ onLoginClick }) => {
     );
   }
 
-  // ── Main Homepage ──
   return (
     <div className="hp-root">
       <nav className="hp-nav">
@@ -82,12 +79,9 @@ const HomePage = ({ onLoginClick }) => {
             style={{ backgroundImage: `url(${HERO_IMAGE})` }}
           />
           <div className="hp-hero-bg-overlay" />
-          <div className="hp-hero-grain" />
-          <div className="hp-hero-blob hp-hero-blob-1" />
-          <div className="hp-hero-blob hp-hero-blob-2" />
-          <div className="hp-hero-blob hp-hero-blob-3" />
         </div>
 
+        {/* Centered Content - No side image */}
         <div className="hp-hero-content">
           <p className="hp-hero-eyebrow">Commercial Distribution</p>
           <h1 className="hp-hero-title">
@@ -105,18 +99,6 @@ const HomePage = ({ onLoginClick }) => {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <a href="#products" className="hp-hero-btn-ghost">View Catalogue</a>
-          </div>
-        </div>
-
-        {/* ── Fabric image panel (right side) ── */}
-        <div className="hp-hero-img-panel">
-          <div className="hp-hero-img-frame">
-            <img src={HERO_IMAGE} alt="Premium textile fabric" className="hp-hero-img" />
-            <div className="hp-hero-img-caption">
-              <span className="hp-hero-img-caption-line">Premium Grade</span>
-              <span className="hp-hero-img-caption-dot">✦</span>
-              <span className="hp-hero-img-caption-line">Wholesale Stock</span>
-            </div>
           </div>
         </div>
 
