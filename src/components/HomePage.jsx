@@ -1,63 +1,89 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
+import ProductDetail from './ProductDetail';
+import mainBg from '../assets/main backgorund.png';
 import './HomePage.css';
 
 const HomePage = ({ onLoginClick }) => {
   const { products, customerProducts } = useContext(AppContext);
   const [visible, setVisible] = useState({});
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const cardRefs = useRef([]);
 
-  // Merge global products + customer products for display (no price shown)
   const allProducts = [
     ...(products || []),
     ...(customerProducts || []).filter(cp => cp.isCustomerProduct),
   ];
 
-  // Intersection Observer for scroll reveal
   useEffect(() => {
+    if (selectedProduct) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setVisible(prev => ({ ...prev, [entry.target.dataset.index]: true }));
-          }
-        });
-      },
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) setVisible(p => ({ ...p, [e.target.dataset.index]: true }));
+      }),
       { threshold: 0.15 }
     );
-    cardRefs.current.forEach(ref => { if (ref) observer.observe(ref); });
+    cardRefs.current.forEach(r => r && observer.observe(r));
     return () => observer.disconnect();
-  }, [allProducts.length]);
+  }, [allProducts.length, selectedProduct]);
 
+  // ── Product Detail View ──
+  if (selectedProduct) {
+    return (
+      <div className="hp-root">
+        <nav className="hp-nav">
+          <div className="hp-nav-logo">
+            <span className="hp-nav-logo-pk">PAKTEX</span>
+            <span className="hp-nav-logo-divider">|</span>
+            <span className="hp-nav-logo-inv">INVENTORY</span>
+          </div>
+          <button className="hp-nav-login-btn" onClick={onLoginClick}>Client Portal →</button>
+        </nav>
+        <div style={{ paddingTop: '72px' }}>
+          <ProductDetail
+            product={selectedProduct}
+            showPrice={false}
+            onBack={() => setSelectedProduct(null)}
+            onLoginForPrice={onLoginClick}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main Homepage ──
   return (
     <div className="hp-root">
 
-      {/* ── Nav ── */}
       <nav className="hp-nav">
         <div className="hp-nav-logo">
           <span className="hp-nav-logo-pk">PAKTEX</span>
           <span className="hp-nav-logo-divider">|</span>
           <span className="hp-nav-logo-inv">INVENTORY</span>
         </div>
-        <button className="hp-nav-login-btn" onClick={onLoginClick}>
-          Client Portal →
-        </button>
+        <button className="hp-nav-login-btn" onClick={onLoginClick}>Client Portal →</button>
       </nav>
 
       {/* ── Hero ── */}
       <section className="hp-hero">
         <div className="hp-hero-bg">
+          <div
+            className="hp-hero-bg-image"
+            style={{ backgroundImage: `url(${mainBg})` }}
+          />
+          <div className="hp-hero-bg-overlay" />
           <div className="hp-hero-grain" />
           <div className="hp-hero-blob hp-hero-blob-1" />
           <div className="hp-hero-blob hp-hero-blob-2" />
           <div className="hp-hero-blob hp-hero-blob-3" />
         </div>
+
         <div className="hp-hero-content">
           <p className="hp-hero-eyebrow">Commercial Distribution</p>
           <h1 className="hp-hero-title">
-            <span className="hp-hero-title-line1">Premium</span>
+            <span className="hp-hero-title-line1">Pakistan</span>
             <span className="hp-hero-title-line2">Textile</span>
-            <span className="hp-hero-title-line3">Materials</span>
+            <span className="hp-hero-title-line3">Exchange</span>
           </h1>
           <p className="hp-hero-sub">
             Curated wholesale fabrics and materials for discerning distributors.
@@ -71,6 +97,19 @@ const HomePage = ({ onLoginClick }) => {
             <a href="#products" className="hp-hero-btn-ghost">View Catalogue</a>
           </div>
         </div>
+
+        {/* ── Fabric image panel (right side) ── */}
+        <div className="hp-hero-img-panel">
+          <div className="hp-hero-img-frame">
+            <img src={mainBg} alt="Premium textile fabric" className="hp-hero-img" />
+            <div className="hp-hero-img-caption">
+              <span className="hp-hero-img-caption-line">Premium Grade</span>
+              <span className="hp-hero-img-caption-dot">✦</span>
+              <span className="hp-hero-img-caption-line">Wholesale Stock</span>
+            </div>
+          </div>
+        </div>
+
         <div className="hp-hero-scroll-hint">
           <span>Scroll</span>
           <div className="hp-hero-scroll-line" />
@@ -79,28 +118,16 @@ const HomePage = ({ onLoginClick }) => {
 
       {/* ── Stats Bar ── */}
       <div className="hp-stats-bar">
-        <div className="hp-stat">
-          <span className="hp-stat-num">{allProducts.length || '—'}</span>
-          <span className="hp-stat-label">Active SKUs</span>
-        </div>
+        <div className="hp-stat"><span className="hp-stat-num">{allProducts.length || '—'}</span><span className="hp-stat-label">Active SKUs</span></div>
         <div className="hp-stat-divider" />
-        <div className="hp-stat">
-          <span className="hp-stat-num">B2B</span>
-          <span className="hp-stat-label">Wholesale Only</span>
-        </div>
+        <div className="hp-stat"><span className="hp-stat-num">B2B</span><span className="hp-stat-label">Wholesale Only</span></div>
         <div className="hp-stat-divider" />
-        <div className="hp-stat">
-          <span className="hp-stat-num">PKR</span>
-          <span className="hp-stat-label">Contract Pricing</span>
-        </div>
+        <div className="hp-stat"><span className="hp-stat-num">PKR</span><span className="hp-stat-label">Contract Pricing</span></div>
         <div className="hp-stat-divider" />
-        <div className="hp-stat">
-          <span className="hp-stat-num">✦</span>
-          <span className="hp-stat-label">Premium Grade</span>
-        </div>
+        <div className="hp-stat"><span className="hp-stat-num">✦</span><span className="hp-stat-label">Premium Grade</span></div>
       </div>
 
-      {/* ── Products Section ── */}
+      {/* ── Products ── */}
       <section className="hp-products" id="products">
         <div className="hp-products-header">
           <div className="hp-products-header-left">
@@ -128,28 +155,25 @@ const HomePage = ({ onLoginClick }) => {
                 ref={el => { cardRefs.current[i] = el; }}
                 data-index={i}
                 style={{ '--delay': `${i * 80}ms` }}
+                onClick={() => setSelectedProduct(product)}
               >
                 <div className="hp-card-img-wrap">
                   <img
                     src={product.image || 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80'}
                     alt={product.name}
                     className="hp-card-img"
-                    onError={e => {
-                      e.target.src = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80';
-                    }}
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80'; }}
                   />
                   <div className="hp-card-img-overlay" />
                   <span className="hp-card-sku">{product.sku}</span>
                 </div>
                 <div className="hp-card-body">
                   <h3 className="hp-card-name">{product.name}</h3>
-                  {product.description && (
-                    <p className="hp-card-desc">{product.description}</p>
-                  )}
-                  <button className="hp-card-cta" onClick={onLoginClick}>
-                    Login for Pricing
+                  {product.description && <p className="hp-card-desc">{product.description}</p>}
+                  <div className="hp-card-cta">
+                    View Details
                     <span className="hp-card-cta-arrow">→</span>
-                  </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -164,9 +188,7 @@ const HomePage = ({ onLoginClick }) => {
           <p className="hp-cta-tag">Registered Clients Only</p>
           <h2 className="hp-cta-title">Access Your Contract Rates</h2>
           <p className="hp-cta-sub">Each client receives personalised pricing tailored to their partnership level and volume.</p>
-          <button className="hp-cta-btn" onClick={onLoginClick}>
-            Enter Client Portal
-          </button>
+          <button className="hp-cta-btn" onClick={onLoginClick}>Enter Client Portal</button>
         </div>
       </section>
 
