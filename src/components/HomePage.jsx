@@ -1,28 +1,39 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
 import ProductDetail from './ProductDetail';
-import mainBg from '../assets/main backgorund.png';
 import './HomePage.css';
 
+// --- Railway Positive: Reliable Unsplash Image Assets ---
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=crop&w=1600&q=80';
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80';
+
 const HomePage = ({ onLoginClick }) => {
-  const { products, customerProducts } = useContext(AppContext);
+  const { products = [], customerProducts = [] } = useContext(AppContext);
   const [visible, setVisible] = useState({});
   const [selectedProduct, setSelectedProduct] = useState(null);
   const cardRefs = useRef([]);
 
+  // Safely combine products
   const allProducts = [
-    ...(products || []),
-    ...(customerProducts || []).filter(cp => cp.isCustomerProduct),
+    ...products,
+    ...customerProducts.filter(cp => cp && cp.isCustomerProduct),
   ];
 
   useEffect(() => {
-    if (selectedProduct) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (selectedProduct) { 
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      return; 
+    }
+    
     const observer = new IntersectionObserver(
       entries => entries.forEach(e => {
-        if (e.isIntersecting) setVisible(p => ({ ...p, [e.target.dataset.index]: true }));
+        if (e.isIntersecting) {
+          setVisible(p => ({ ...p, [e.target.dataset.index]: true }));
+        }
       }),
       { threshold: 0.15 }
     );
+    
     cardRefs.current.forEach(r => r && observer.observe(r));
     return () => observer.disconnect();
   }, [allProducts.length, selectedProduct]);
@@ -54,7 +65,6 @@ const HomePage = ({ onLoginClick }) => {
   // ── Main Homepage ──
   return (
     <div className="hp-root">
-
       <nav className="hp-nav">
         <div className="hp-nav-logo">
           <span className="hp-nav-logo-pk">PAKTEX</span>
@@ -69,7 +79,7 @@ const HomePage = ({ onLoginClick }) => {
         <div className="hp-hero-bg">
           <div
             className="hp-hero-bg-image"
-            style={{ backgroundImage: `url(${mainBg})` }}
+            style={{ backgroundImage: `url(${HERO_IMAGE})` }}
           />
           <div className="hp-hero-bg-overlay" />
           <div className="hp-hero-grain" />
@@ -101,7 +111,7 @@ const HomePage = ({ onLoginClick }) => {
         {/* ── Fabric image panel (right side) ── */}
         <div className="hp-hero-img-panel">
           <div className="hp-hero-img-frame">
-            <img src={mainBg} alt="Premium textile fabric" className="hp-hero-img" />
+            <img src={HERO_IMAGE} alt="Premium textile fabric" className="hp-hero-img" />
             <div className="hp-hero-img-caption">
               <span className="hp-hero-img-caption-line">Premium Grade</span>
               <span className="hp-hero-img-caption-dot">✦</span>
@@ -150,7 +160,7 @@ const HomePage = ({ onLoginClick }) => {
           <div className="hp-grid">
             {allProducts.map((product, i) => (
               <div
-                key={product.id}
+                key={product.id || i}
                 className={`hp-card ${visible[i] ? 'hp-card--visible' : ''}`}
                 ref={el => { cardRefs.current[i] = el; }}
                 data-index={i}
@@ -159,16 +169,16 @@ const HomePage = ({ onLoginClick }) => {
               >
                 <div className="hp-card-img-wrap">
                   <img
-                    src={product.image || 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80'}
-                    alt={product.name}
+                    src={product.image || FALLBACK_IMAGE}
+                    alt={product.name || 'Product Image'}
                     className="hp-card-img"
-                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80'; }}
+                    onError={e => { e.target.src = FALLBACK_IMAGE; }}
                   />
                   <div className="hp-card-img-overlay" />
-                  <span className="hp-card-sku">{product.sku}</span>
+                  <span className="hp-card-sku">{product.sku || 'N/A'}</span>
                 </div>
                 <div className="hp-card-body">
-                  <h3 className="hp-card-name">{product.name}</h3>
+                  <h3 className="hp-card-name">{product.name || 'Unnamed Product'}</h3>
                   {product.description && <p className="hp-card-desc">{product.description}</p>}
                   <div className="hp-card-cta">
                     View Details
