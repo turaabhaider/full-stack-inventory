@@ -215,7 +215,7 @@ const AdminDashboard = () => {
     setCustomPriceInput('');
   };
 
-  const handleCreateProduct = (e) => {
+  const handleCreateProduct = async (e) => {
     e.preventDefault();
     if (!newProdName || !newProdSku || !newProdPrice) return;
     const obj = {
@@ -226,13 +226,62 @@ const AdminDashboard = () => {
       description: newProdDesc,
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
-    if (setProducts) setProducts(prev => [...prev, obj]);
-    setNewProdName(''); setNewProdSku(''); setNewProdPrice('');
-    setNewProdImg(''); setNewProdImgPreview(''); setNewProdDesc('');
+    try {
+      const API = process.env.REACT_APP_API_URL || '';
+      const res = await fetch(`${API}/api/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj),
+      });
+      if (!res.ok) throw new Error('Server error');
+      if (setProducts) setProducts(prev => [...prev, obj]);
+      setNewProdName(''); setNewProdSku(''); setNewProdPrice('');
+      setNewProdImg(''); setNewProdImgPreview(''); setNewProdDesc('');
+    } catch (err) {
+      console.error('Failed to save product to Railway DB:', err);
+      alert('Failed to save product. Please try again.');
+    }
   };
 
-  const handleAddCustomerProduct = (prod) => setCustomerProducts(prev => [...prev, prod]);
-  const deleteCustomerProduct    = (id)   => setCustomerProducts(prev => prev.filter(p => p.id !== id));
+  const handleDeleteProduct = async (id) => {
+    try {
+      const API = process.env.REACT_APP_API_URL || '';
+      const res = await fetch(`${API}/api/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Server error');
+      if (setProducts) setProducts(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('Failed to delete product from Railway DB:', err);
+      alert('Failed to delete product. Please try again.');
+    }
+  };
+
+  const handleAddCustomerProduct = async (prod) => {
+    try {
+      const API = process.env.REACT_APP_API_URL || '';
+      const res = await fetch(`${API}/api/customer-products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prod),
+      });
+      if (!res.ok) throw new Error('Server error');
+      setCustomerProducts(prev => [...prev, prod]);
+    } catch (err) {
+      console.error('Failed to save customer product to Railway DB:', err);
+      alert('Failed to save client product. Please try again.');
+    }
+  };
+
+  const deleteCustomerProduct = async (id) => {
+    try {
+      const API = process.env.REACT_APP_API_URL || '';
+      const res = await fetch(`${API}/api/customer-products/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Server error');
+      setCustomerProducts(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('Failed to delete customer product from Railway DB:', err);
+      alert('Failed to delete client product. Please try again.');
+    }
+  };
 
   // Safe lookups — never crash if selectedClientId is stale
   const selectedClient  = customers.find(c => c.id === selectedClientId) || null;
@@ -523,8 +572,15 @@ const AdminDashboard = () => {
                       <h4>{p.name}</h4>
                       {p.description && <p>{p.description}</p>}
                       <div className="ad-catalog-price-row">
-                        <span>Baseline</span>
-                        <strong>₨ {Number(p.basePrice).toLocaleString()}</strong>
+                        <div>
+                          <span>Baseline</span>
+                          <strong>₨ {Number(p.basePrice).toLocaleString()}</strong>
+                        </div>
+                        <button className="ad-delete-btn" title="Delete product" onClick={() => {
+                          if (window.confirm(`Delete "${p.name}"? This cannot be undone.`)) {
+                            handleDeleteProduct(p.id);
+                          }
+                        }}><Trash2 size={13} /></button>
                       </div>
                     </div>
                   </div>
