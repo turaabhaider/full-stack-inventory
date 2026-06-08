@@ -219,30 +219,48 @@ const AdminDashboard = () => {
     setCustomPriceInput('');
   };
 
-  const handleCreateProduct = async (e) => {
+const handleCreateProduct = async (e) => {
     e.preventDefault();
-    if (!newProdName || !newProdSku || !newProdPrice) return;
+    // Validate required fields
+    if (!newProdName || !newProdSku || !newProdPrice) {
+      alert("Please fill in all required fields (Name, SKU, and Price).");
+      return;
+    }
+
     const obj = {
       id: `prod_${Date.now()}`,
       name: newProdName,
       sku: newProdSku.toUpperCase().trim(),
       basePrice: Number(newProdPrice),
-      description: newProdDesc,
+      // Description removed because the database table lacks this column
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
+
     try {
       const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj),
       });
-      if (!res.ok) throw new Error('Server error');
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to save product');
+      }
+
+      // Success: Update UI
       if (setProducts) setProducts(prev => [...prev, obj]);
-      setNewProdName(''); setNewProdSku(''); setNewProdPrice('');
-      setNewProdImg(''); setNewProdImgPreview(''); setNewProdDesc('');
+      
+      // Reset Form
+      setNewProdName(''); 
+      setNewProdSku(''); 
+      setNewProdPrice('');
+      setNewProdImg(''); 
+      setNewProdImgPreview(''); 
+      setNewProdDesc('');
     } catch (err) {
       console.error('Save failed:', err);
-      alert('Failed to save to production database.');
+      alert(`Error saving product: ${err.message}`);
     }
   };
 
