@@ -192,13 +192,14 @@ const AddCustomerProductModal = ({ customers, onClose, onAdd }) => {
 };
 
 const AdminDashboard = () => {
-  const {
-    customers, products, pricingRules,
-    upsertPricingRule, deletePricingRule,
-    logout, setProducts,
-    customerProducts, setCustomerProducts,
-    user
-  } = useContext(AppContext);
+ const {
+  customers, products, pricingRules,
+  upsertPricingRule, deletePricingRule,
+  logout, setProducts,
+  customerProducts, setCustomerProducts,
+  deleteCustomerProduct, // <--- Add this line
+  user
+} = useContext(AppContext);
 
   const [currentTab,        setCurrentTab]        = useState('clients');
   const [selectedClientId,  setSelectedClientId]  = useState(customers[0]?.id || '');
@@ -275,17 +276,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const deleteCustomerProduct = async (id) => {
-    try {
-      // ✅ Force targeting Railway explicit URL to stop 405 error
-      const res = await fetch(`${API_BASE}/customer-products/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Server error');
-      setCustomerProducts(prev => prev.filter(p => p.id !== id));
-    } catch (err) {
-      console.error('Failed to delete customer product from Railway DB:', err);
-      alert('Failed to delete client product. Please try again.');
-    }
-  };
+  
 
   // Safe lookups — never crash if selectedClientId is stale
   const selectedClient  = customers.find(c => c.id === selectedClientId) || null;
