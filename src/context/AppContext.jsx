@@ -82,7 +82,6 @@ export const AppProvider = ({ children }) => {
 
   // ── Products ───────────────────────────────────────────────────────────────
   const setProducts = useCallback((updaterOrValue) => {
-    // Resolve next state values cleanly outside the state setter function
     const next = typeof updaterOrValue === 'function' ? updaterOrValue(products) : updaterOrValue;
     
     if (next.length > products.length) {
@@ -94,7 +93,6 @@ export const AppProvider = ({ children }) => {
       })
       .then(res => res.json())
       .then(savedProd => {
-        // Swap out the temp object with the genuine DB entry (carrying the real ID)
         setProductsState(current => current.map(p => p.id === newProd.id ? savedProd : p));
       })
       .catch(err => console.error('Product save error:', err));
@@ -154,7 +152,7 @@ export const AppProvider = ({ children }) => {
       .catch(err => console.error('Customer product save error:', err));
     }
 
-    // Handle Deletion
+    // Handle Deletion via setter array reductions
     if (next.length < customerProducts.length) {
       const deleted = customerProducts.find(p => !next.find(n => n.id === p.id));
       if (deleted) {
@@ -165,6 +163,20 @@ export const AppProvider = ({ children }) => {
 
     setCustomerProductsState(next);
   }, [customerProducts]);
+
+  // ── Explicit Customer Product Deletion ─────────────────────────────────────
+  const deleteCustomerProduct = useCallback(async (id) => {
+    if (!id) return;
+    
+    // Optimistically filter item out of local UI state immediately 
+    setCustomerProductsState(prev => prev.filter(p => p.id !== id));
+    
+    try {
+      await fetch(`${API_BASE}/customer-products/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error('Explicit customer product delete error:', err);
+    }
+  }, []);
 
   // ── Price Lookup ───────────────────────────────────────────────────────────
   const getProductPriceForCustomer = useCallback((productId, customerId) => {
@@ -188,7 +200,7 @@ export const AppProvider = ({ children }) => {
       products, setProducts,
       customers,
       pricingRules, upsertPricingRule, deletePricingRule,
-      customerProducts, setCustomerProducts,
+      customerProducts, setCustomerProducts, deleteCustomerProduct, // <-- Added here safely
       getProductPriceForCustomer,
       loading,
       refreshAll: fetchAll,
