@@ -227,8 +227,7 @@ const AdminDashboard = () => {
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
     try {
-      const API = process.env.REACT_APP_API_URL || '';
-      const res = await fetch(`${API}/api/products`, {
+      const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj),
@@ -245,8 +244,7 @@ const AdminDashboard = () => {
 
   const handleDeleteProduct = async (id) => {
     try {
-      const API = process.env.REACT_APP_API_URL || '';
-      const res = await fetch(`${API}/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Server error');
       if (setProducts) setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
@@ -257,8 +255,7 @@ const AdminDashboard = () => {
 
   const handleAddCustomerProduct = async (prod) => {
     try {
-      const API = process.env.REACT_APP_API_URL || '';
-      const res = await fetch(`${API}/api/customer-products`, {
+      const res = await fetch('/api/customer-products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prod),
@@ -273,8 +270,7 @@ const AdminDashboard = () => {
 
   const deleteCustomerProduct = async (id) => {
     try {
-      const API = process.env.REACT_APP_API_URL || '';
-      const res = await fetch(`${API}/api/customer-products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/customer-products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Server error');
       setCustomerProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
