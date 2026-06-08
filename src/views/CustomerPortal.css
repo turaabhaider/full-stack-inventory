@@ -1000,44 +1000,59 @@
     padding: 0 32px;
   }
 }
- 
+ /* AdminDashboard.css - Add these to your existing file */
+
 @media (max-width: 768px) {
-  .cp-nav {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 16px 20px;
-    gap: 12px;
-  }
- 
-  .cp-nav-right {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
- 
-  .cp-stage {
-    padding: 28px 20px 60px;
-  }
- 
-  .cp-page-intro {
+  /* Hide the sidebar and turn it into a bottom nav or top bar if preferred */
+  .ad-shell {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
   }
- 
-  .cp-page-intro-title {
-    font-size: 28px;
+
+  .ad-sidebar {
+    width: 100%;
+    height: auto;
+    padding: 15px;
   }
- 
-  .cp-grid {
+
+  .ad-nav-group {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 5px;
+  }
+
+  .ad-nav-btn {
+    white-space: nowrap;
+    padding: 8px 12px;
+  }
+
+  .ad-viewport {
+    padding: 15px;
+  }
+
+  /* Make the split-grid a single column */
+  .ad-split-grid {
     grid-template-columns: 1fr;
   }
- 
-  .cp-manifest-table {
-    font-size: 12px;
+
+  /* Make sure inputs and buttons are touch-friendly */
+  .ad-input, 
+  .ad-textarea,
+  .ad-btn-gold,
+  .ad-btn-black {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px; /* Prevents iOS auto-zoom on inputs */
   }
- 
-  .cp-manifest-table th,
-  .cp-manifest-table td {
-    padding: 12px 14px;
+
+  .ad-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ad-modal-box {
+    width: 95%;
+    margin: 5% auto;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 }
