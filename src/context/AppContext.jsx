@@ -8,7 +8,6 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const s = (val) => (val == null ? '' : String(val));
 
 // ── Normalize a user/customer row coming from the DB ─────────────────────────
-// Removes companyName requirement — just uses `name` everywhere
 const normalizeUser = (u) => ({
   ...u,
   id:    s(u.id),
@@ -16,7 +15,6 @@ const normalizeUser = (u) => ({
   name:  s(u.name) || s(u.companyName) || 'Unknown',
   email: s(u.email),
   phone: s(u.phone),
-  // Keep companyName as an alias so any old code referencing it doesn't break
   companyName: s(u.name) || s(u.companyName) || 'Unknown',
 });
 
@@ -28,7 +26,7 @@ export const AppProvider = ({ children }) => {
     } catch { return null; }
   });
 
-  const [products,         setProductsState]       = useState([]);
+  const [products,         setProductsState]         = useState([]);
   const [customers,        setCustomers]            = useState([]);
   const [pricingRules,     setPricingRulesState]    = useState([]);
   const [customerProducts, setCustomerProductsState] = useState([]);
@@ -47,18 +45,17 @@ export const AppProvider = ({ children }) => {
 
       const getJson = async (res) => (res.ok ? await res.json() : []);
 
-      const [products, customers, pricingRules, customerProducts] = await Promise.all([
+      const [prodData, custData, rulesData, cprodData] = await Promise.all([
         getJson(prodRes),
         getJson(custRes),
         getJson(rulesRes),
         getJson(cprodRes),
       ]);
 
-      // Force these to be arrays even if the API returns something weird
-      setProductsState(Array.isArray(products) ? products : []);
-      setCustomers(Array.isArray(customers) ? customers : []);
-      setPricingRulesState(Array.isArray(pricingRules) ? pricingRules : []);
-      setCustomerProductsState(Array.isArray(customerProducts) ? customerProducts : []);
+      setProductsState(Array.isArray(prodData) ? prodData : []);
+      setCustomers(Array.isArray(custData) ? custData : []);
+      setPricingRulesState(Array.isArray(rulesData) ? rulesData : []);
+      setCustomerProductsState(Array.isArray(cprodData) ? cprodData : []);
       
     } catch (err) {
       console.error("Critical Data Fetch Error:", err);
@@ -70,8 +67,6 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
-
-  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   // ── Auth ───────────────────────────────────────────────────────────────────
   const login = (userData) => {
@@ -87,19 +82,26 @@ export const AppProvider = ({ children }) => {
 
   // ── Products ───────────────────────────────────────────────────────────────
   const setProducts = useCallback((updaterOrValue) => {
-    setProductsState(prev => {
-      const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-      if (next.length > prev.length) {
-        const newProd = next[next.length - 1];
-        fetch(`${API_BASE}/products`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newProd),
-        }).catch(err => console.error('Product save error:', err));
-      }
-      return next;
-    });
-  }, []);
+    // Resolve next state values cleanly outside the state setter function
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(products) : updaterOrValue;
+    
+    if (next.length > products.length) {
+      const newProd = next[next.length - 1];
+      fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProd),
+      })
+      .then(res => res.json())
+      .then(savedProd => {
+        // Swap out the temp object with the genuine DB entry (carrying the real ID)
+        setProductsState(current => current.map(p => p.id === newProd.id ? savedProd : p));
+      })
+      .catch(err => console.error('Product save error:', err));
+    }
+    
+    setProductsState(next);
+  }, [products]);
 
   // ── Pricing Rules ──────────────────────────────────────────────────────────
   const upsertPricingRule = useCallback(async (productId, customerId, customizedPrice) => {
@@ -135,29 +137,34 @@ export const AppProvider = ({ children }) => {
 
   // ── Customer Products ──────────────────────────────────────────────────────
   const setCustomerProducts = useCallback((updaterOrValue) => {
-    setCustomerProductsState(prev => {
-      const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
+    const next = typeof updaterOrValue === 'function' ? updaterOrValue(customerProducts) : updaterOrValue;
 
-      if (next.length > prev.length) {
-        const newProd = next[next.length - 1];
-        fetch(`${API_BASE}/customer-products`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newProd),
-        }).catch(err => console.error('Customer product save error:', err));
+    // Handle Creation
+    if (next.length > customerProducts.length) {
+      const newProd = next[next.length - 1];
+      fetch(`${API_BASE}/customer-products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProd),
+      })
+      .then(res => res.json())
+      .then(savedProd => {
+        setCustomerProductsState(current => current.map(p => p.id === newProd.id ? savedProd : p));
+      })
+      .catch(err => console.error('Customer product save error:', err));
+    }
+
+    // Handle Deletion
+    if (next.length < customerProducts.length) {
+      const deleted = customerProducts.find(p => !next.find(n => n.id === p.id));
+      if (deleted) {
+        fetch(`${API_BASE}/customer-products/${deleted.id}`, { method: 'DELETE' })
+          .catch(err => console.error('Customer product delete error:', err));
       }
+    }
 
-      if (next.length < prev.length) {
-        const deleted = prev.find(p => !next.find(n => n.id === p.id));
-        if (deleted) {
-          fetch(`${API_BASE}/customer-products/${deleted.id}`, { method: 'DELETE' })
-            .catch(err => console.error('Customer product delete error:', err));
-        }
-      }
-
-      return next;
-    });
-  }, []);
+    setCustomerProductsState(next);
+  }, [customerProducts]);
 
   // ── Price Lookup ───────────────────────────────────────────────────────────
   const getProductPriceForCustomer = useCallback((productId, customerId) => {
