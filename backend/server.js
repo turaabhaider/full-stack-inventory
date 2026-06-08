@@ -35,8 +35,9 @@ app.use(cors({
 app.options('*', cors());
 
 // ── Body Parsing ──────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Increase these limits in server.js
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.status(200).send('API Gateway is operational'));
