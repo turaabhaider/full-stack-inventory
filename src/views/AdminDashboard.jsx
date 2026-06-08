@@ -6,12 +6,11 @@ import {
 } from 'lucide-react';
 import './AdminDashboard.css';
 
-// ── RAILWAY POSITIVE BACKEND LINK ─────────────────────────────────────────────
-// This explicitly points to your live Railway backend so data never disappears
-const API_BASE = import.meta.env.VITE_API_URL || 'https://backend-inventory-production-e725.up.railway.app/api';
+// ── PRODUCTION BACKEND ONLY ──────────────────────────────────────────────────
+// Fallback removed to ensure strict adherence to production environment variable
+const API_BASE = import.meta.env.VITE_API_URL;
 
-// ── SAFE name helper — this is the fix for ALL toLowerCase crashes ────────────
-// Never call .name or .companyName directly — always go through this.
+// ── SAFE name helper — prevents crashes ──────────────────────────────────────
 const getClientName = (client) => {
   if (!client) return 'Unknown Client';
   const n = client.name || client.companyName;
@@ -197,7 +196,7 @@ const AdminDashboard = () => {
   upsertPricingRule, deletePricingRule,
   logout, setProducts,
   customerProducts, setCustomerProducts,
-  deleteCustomerProduct, // <--- Add this line
+  deleteCustomerProduct,
   user
 } = useContext(AppContext);
 
@@ -232,7 +231,6 @@ const AdminDashboard = () => {
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
     try {
-      // ✅ Force targeting Railway explicit URL to stop 405 error
       const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -243,26 +241,24 @@ const AdminDashboard = () => {
       setNewProdName(''); setNewProdSku(''); setNewProdPrice('');
       setNewProdImg(''); setNewProdImgPreview(''); setNewProdDesc('');
     } catch (err) {
-      console.error('Failed to save product to Railway DB:', err);
-      alert('Failed to save product. Please try again.');
+      console.error('Save failed:', err);
+      alert('Failed to save to production database.');
     }
   };
 
   const handleDeleteProduct = async (id) => {
     try {
-      // ✅ Force targeting Railway explicit URL to stop 405 error
       const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Server error');
       if (setProducts) setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
-      console.error('Failed to delete product from Railway DB:', err);
-      alert('Failed to delete product. Please try again.');
+      console.error('Delete failed:', err);
+      alert('Failed to delete from production database.');
     }
   };
 
   const handleAddCustomerProduct = async (prod) => {
     try {
-      // ✅ Force targeting Railway explicit URL to stop 405 error
       const res = await fetch(`${API_BASE}/customer-products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -271,14 +267,11 @@ const AdminDashboard = () => {
       if (!res.ok) throw new Error('Server error');
       setCustomerProducts(prev => [...prev, prod]);
     } catch (err) {
-      console.error('Failed to save customer product to Railway DB:', err);
-      alert('Failed to save client product. Please try again.');
+      console.error('Save failed:', err);
+      alert('Failed to save customer product to production database.');
     }
   };
 
-  
-
-  // Safe lookups — never crash if selectedClientId is stale
   const selectedClient  = customers.find(c => c.id === selectedClientId) || null;
   const isolatedRules   = pricingRules.filter(r => r.customerId === selectedClientId);
   const clientCustProds = customerProducts.filter(p => p.assignedCustomers?.includes(selectedClientId));
@@ -330,7 +323,6 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* ── CLIENT PRICING TAB ── */}
         {currentTab === 'clients' && (
           <div className="ad-split-grid">
             <div className="ad-card">
@@ -467,7 +459,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ── ALL CLIENTS MATRIX TAB ── */}
         {currentTab === 'all-clients' && (
           <div className="ad-matrix-stack">
             <div className="ad-card">
@@ -524,7 +515,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ── GLOBAL CATALOG TAB ── */}
         {currentTab === 'global-catalog' && (
           <div className="ad-catalog-split">
             <div className="ad-card">
@@ -585,7 +575,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ── CUSTOMER PRODUCTS TAB ── */}
         {currentTab === 'customer-products' && (
           <div>
             <div className="ad-cust-tab-banner">
