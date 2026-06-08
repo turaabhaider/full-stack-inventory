@@ -221,7 +221,6 @@ const AdminDashboard = () => {
 
 const handleCreateProduct = async (e) => {
     e.preventDefault();
-    // Validate required fields
     if (!newProdName || !newProdSku || !newProdPrice) {
       alert("Please fill in all required fields (Name, SKU, and Price).");
       return;
@@ -232,35 +231,34 @@ const handleCreateProduct = async (e) => {
       name: newProdName,
       sku: newProdSku.toUpperCase().trim(),
       basePrice: Number(newProdPrice),
-      // Description removed because the database table lacks this column
+      // Only include description if your backend column exists
+      description: newProdDesc || '', 
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
 
     try {
-      const res = await fetch(`${API_BASE}/products`, {
+      const response = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to save product');
-      }
+      if (!response.ok) throw new Error('Failed to save to database');
 
-      // Success: Update UI
+      // Update UI only after successful server response
       if (setProducts) setProducts(prev => [...prev, obj]);
       
-      // Reset Form
-      setNewProdName(''); 
-      setNewProdSku(''); 
+      // Clear form
+      setNewProdName('');
+      setNewProdSku('');
       setNewProdPrice('');
-      setNewProdImg(''); 
-      setNewProdImgPreview(''); 
+      setNewProdImg('');
+      setNewProdImgPreview('');
       setNewProdDesc('');
+      alert("Product saved successfully!");
     } catch (err) {
-      console.error('Save failed:', err);
-      alert(`Error saving product: ${err.message}`);
+      console.error("Save error:", err);
+      alert("Error saving product to the server.");
     }
   };
 
