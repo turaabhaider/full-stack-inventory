@@ -6,6 +6,10 @@ import {
 } from 'lucide-react';
 import './AdminDashboard.css';
 
+// ── RAILWAY POSITIVE BACKEND LINK ─────────────────────────────────────────────
+// This explicitly points to your live Railway backend so data never disappears
+const API_BASE = import.meta.env.VITE_API_URL || 'https://backend-inventory-production-e725.up.railway.app/api';
+
 // ── SAFE name helper — this is the fix for ALL toLowerCase crashes ────────────
 // Never call .name or .companyName directly — always go through this.
 const getClientName = (client) => {
@@ -200,13 +204,13 @@ const AdminDashboard = () => {
   const [selectedClientId,  setSelectedClientId]  = useState(customers[0]?.id || '');
   const [targetProductId,   setTargetProductId]   = useState('');
   const [customPriceInput,  setCustomPriceInput]  = useState('');
-  const [newProdName,       setNewProdName]        = useState('');
-  const [newProdSku,        setNewProdSku]         = useState('');
-  const [newProdPrice,      setNewProdPrice]       = useState('');
-  const [newProdImg,        setNewProdImg]         = useState('');
-  const [newProdImgPreview, setNewProdImgPreview]  = useState('');
-  const [newProdDesc,       setNewProdDesc]        = useState('');
-  const [showAddModal,      setShowAddModal]       = useState(false);
+  const [newProdName,       setNewProdName]       = useState('');
+  const [newProdSku,        setNewProdSku]        = useState('');
+  const [newProdPrice,      setNewProdPrice]      = useState('');
+  const [newProdImg,        setNewProdImg]        = useState('');
+  const [newProdImgPreview, setNewProdImgPreview] = useState('');
+  const [newProdDesc,       setNewProdDesc]       = useState('');
+  const [showAddModal,      setShowAddModal]      = useState(false);
 
   const handleAssignPriceOverride = (e) => {
     e.preventDefault();
@@ -227,7 +231,8 @@ const AdminDashboard = () => {
       image: newProdImg.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     };
     try {
-      const res = await fetch('/api/products', {
+      // ✅ Force targeting Railway explicit URL to stop 405 error
+      const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj),
@@ -244,7 +249,8 @@ const AdminDashboard = () => {
 
   const handleDeleteProduct = async (id) => {
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      // ✅ Force targeting Railway explicit URL to stop 405 error
+      const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Server error');
       if (setProducts) setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
@@ -255,7 +261,8 @@ const AdminDashboard = () => {
 
   const handleAddCustomerProduct = async (prod) => {
     try {
-      const res = await fetch('/api/customer-products', {
+      // ✅ Force targeting Railway explicit URL to stop 405 error
+      const res = await fetch(`${API_BASE}/customer-products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prod),
@@ -270,7 +277,8 @@ const AdminDashboard = () => {
 
   const deleteCustomerProduct = async (id) => {
     try {
-      const res = await fetch(`/api/customer-products/${id}`, { method: 'DELETE' });
+      // ✅ Force targeting Railway explicit URL to stop 405 error
+      const res = await fetch(`${API_BASE}/customer-products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Server error');
       setCustomerProducts(prev => prev.filter(p => p.id !== id));
     } catch (err) {
