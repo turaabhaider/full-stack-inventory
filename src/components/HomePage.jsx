@@ -128,7 +128,7 @@ const HomePage = ({ onLoginClick }) => {
           </div>
           <p className="hp-section-desc">
             All pricing is contract-based and personalised per client.<br />
-            <button className="hp-inline-login" onClick={onLoginClick}>Login to view your rates →</button>
+            <button className="hp-inline-login" onClick={onLoginClick}>Login to view rates →</button>
           </p>
         </div>
 
