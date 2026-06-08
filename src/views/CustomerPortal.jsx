@@ -68,7 +68,7 @@ const CustomerPortal = () => {
               <span className="cp-nav-identity-label">Secure Node Session</span>
               <span className="cp-nav-identity-name">{displayName}</span>
             </div>
-            <button className="cp-nav-logout" onClick={logout}><LogOut size={12} /> Leave Matrix</button>
+            <button className="cp-nav-logout" onClick={logout}><LogOut size={12} /> Leave Portal</button>
           </div>
         </header>
         <div className="cp-stage">
