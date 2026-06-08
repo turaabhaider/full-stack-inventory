@@ -1171,3 +1171,63 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #ccc;
 }
+/* =============================================
+   MOBILE OPTIMIZATION (Phones < 768px)
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Ensure the shell stacks vertically */
+  .ad-shell {
+    flex-direction: column;
+  }
+
+  .ad-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+
+  .ad-nav-group {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto; /* Allows scrolling through nav items */
+    gap: 10px;
+    padding: 10px;
+    white-space: nowrap;
+  }
+
+  .ad-viewport {
+    padding: 20px;
+    width: 100%;
+  }
+
+  /* Force grids to single column */
+  .ad-split-grid, 
+  .ad-catalog-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Fix inputs to be 16px font to prevent iOS auto-zoom */
+  .ad-input, 
+  .ad-textarea,
+  .ad-btn-gold,
+  .ad-btn-black {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  /* Optimize Tables for small screens */
+  .ad-manifest-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .ad-modal-box {
+    width: 95% !important;
+    margin: 10% auto;
+    padding: 20px;
+  }
+}
