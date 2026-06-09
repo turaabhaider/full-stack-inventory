@@ -103,7 +103,7 @@ const HomePage = ({ onLoginClick }) => {
         </div>
 
         <div className="hp-hero-scroll-hint">
-          <span>Scroll</span>
+         
           <div className="hp-hero-scroll-line" />
         </div>
       </section>
