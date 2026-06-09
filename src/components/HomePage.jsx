@@ -189,7 +189,7 @@ const HomePage = ({ onLoginClick }) => {
         <div className="hp-footer-top">
           <div className="hp-footer-brand">
             <span className="hp-footer-logo">PAKTEX</span>
-            <p>Commercial Distribution Control Panel</p>
+            <p>PAKISTAN TEXTILE EXCAHGNE FULLFILL YOUR REQUIREMENTS </p>
           </div>
           <div className="hp-footer-links">
             <button onClick={onLoginClick} className="hp-footer-link">Client Login</button>
