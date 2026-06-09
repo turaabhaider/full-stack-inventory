@@ -177,7 +177,7 @@ const HomePage = ({ onLoginClick }) => {
       <section className="hp-cta-banner">
         <div className="hp-cta-banner-bg" />
         <div className="hp-cta-content">
-          <p className="hp-cta-tag">Registered Clients Only</p>
+          <p className="hp-cta-tag">You Can Register If You Don`t Have Have Any Account</p>
           <h2 className="hp-cta-title">Access Your Contract Rates</h2>
           <p className="hp-cta-sub">Each client receives personalised pricing tailored to their partnership level and volume.</p>
           <button className="hp-cta-btn" onClick={onLoginClick}>Enter Client Portal</button>
