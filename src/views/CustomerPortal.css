@@ -1,41 +1,53 @@
 /* ═══════════════════════════════════════════════════════
    CUSTOMER PORTAL — PAKTEX
-   Theme: Pure White Editorial Luxury
-   Fonts: Playfair Display (display) + Figtree (body)
-   Mobile-first, pixel-perfect
+   Theme: White Editorial Luxury + Mobile Hamburger Nav
+   Fonts: Playfair Display + Figtree
    ═══════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@300;400;500;600;700&display=swap');
 
-/* ── CSS Variables ────────────────────────────────────── */
+/* ── CSS Variables ── */
 :root {
   --gold:           #a8843c;
   --gold-light:     #faf5ea;
   --gold-border:    #e8d9b8;
   --gold-hover:     #8c6d2f;
+  --gold-glow:      rgba(168,132,60,0.15);
+
   --black:          #0e0e0e;
   --ink:            #1c1c1c;
   --ink-mid:        #4a4a4a;
   --ink-muted:      #9a9a9a;
   --ink-faint:      #c8c8c8;
+
   --white:          #ffffff;
   --surface:        #fafaf8;
   --surface-alt:    #f5f4f0;
+  --surface-hover:  #f0efe9;
+
   --border:         #e8e8e3;
   --border-light:   #f0efe9;
+  --border-strong:  #d4d3cd;
+
   --red:            #c0392b;
+  --red-pale:       #fff5f5;
+
   --nav-h:          64px;
   --font-display:   'Playfair Display', Georgia, serif;
   --font-body:      'Figtree', -apple-system, sans-serif;
   --radius:         4px;
-  --radius-lg:      8px;
-  --shadow-card:    0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
-  --shadow-hover:   0 8px 32px rgba(0,0,0,0.10);
-  --transition:     all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-lg:      10px;
+  --shadow-card:    0 1px 2px rgba(0,0,0,0.04), 0 4px 18px rgba(0,0,0,0.05);
+  --shadow-hover:   0 10px 36px rgba(0,0,0,0.10);
+  --shadow-nav:     0 2px 20px rgba(0,0,0,0.06);
+  --transition:     all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --page-px:        20px;
+
+  /* Mobile drawer */
+  --drawer-w:       280px;
 }
 
-/* ── Reset ────────────────────────────────────────────── */
+/* ── Reset ── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -55,34 +67,35 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   NAV
+   NAV — Base (mobile-first)
    ═══════════════════════════════════════════════════════ */
 .cp-nav {
   position: sticky;
   top: 0;
   z-index: 500;
   height: var(--nav-h);
-  background: rgba(255,255,255,0.96);
+  background: rgba(255,255,255,0.97);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--page-px);
   gap: 12px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-nav);
 }
 
 /* Brand */
 .cp-nav-brand {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
 .cp-nav-eyebrow {
-  font-size: 7.5px;
+  font-size: 7px;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gold);
@@ -100,9 +113,9 @@
   line-height: 1;
 }
 
-/* Tabs — pill switcher */
+/* ── Desktop: tab switcher ── */
 .cp-nav-tabs {
-  display: flex;
+  display: none; /* hidden on mobile, shown at ≥ 600px */
   gap: 2px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
@@ -154,7 +167,7 @@
   padding: 0 3px;
 }
 
-/* Right side: identity + logout */
+/* Right side */
 .cp-nav-right {
   display: flex;
   align-items: center;
@@ -163,14 +176,14 @@
 }
 
 .cp-nav-identity {
-  display: flex;
+  display: none; /* shows at desktop */
   flex-direction: column;
   align-items: flex-end;
   gap: 1px;
 }
 
 .cp-nav-identity-label {
-  font-size: 8px;
+  font-size: 7.5px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--ink-muted);
@@ -189,7 +202,7 @@
 }
 
 .cp-nav-logout {
-  display: flex;
+  display: none; /* shows at desktop */
   align-items: center;
   gap: 5px;
   background: transparent;
@@ -215,56 +228,387 @@
   color: var(--white);
 }
 
+
+/* ═══════════════════════════════════════════════════════
+   HAMBURGER BUTTON (mobile only)
+   Three horizontal lines, visible on mobile
+   ═══════════════════════════════════════════════════════ */
+.cp-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 10px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cp-hamburger:hover {
+  border-color: var(--gold-border);
+  background: var(--gold-light);
+}
+
+/* The three lines */
+.cp-hamburger-line {
+  display: block;
+  height: 1.5px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: width 0.2s ease, opacity 0.2s ease, transform 0.25s ease;
+  transform-origin: center;
+  width: 100%;
+}
+
+/* Middle line: shorter for asymmetric editorial look */
+.cp-hamburger-line:nth-child(2) {
+  width: 70%;
+}
+
+/* Animate to X when drawer is open */
+.cp-hamburger.open .cp-hamburger-line:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+  width: 100%;
+}
+
+.cp-hamburger.open .cp-hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.cp-hamburger.open .cp-hamburger-line:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+  width: 100%;
+}
+
+/* Cart badge on hamburger */
+.cp-hamburger-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--gold);
+  color: var(--white);
+  font-size: 8px;
+  font-weight: 700;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Wrapper for hamburger — gives it position context for the badge */
+.cp-hamburger-wrap {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* ── Mobile bottom tab bar (replaces the pill tabs) ── */
+.cp-mobile-tabs {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  background: rgba(255,255,255,0.97);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.cp-mobile-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 12px;
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+  position: relative;
+}
+
+.cp-mobile-tab svg {
+  stroke: currentColor;
+  transition: stroke 0.2s ease;
+}
+
+.cp-mobile-tab.active {
+  color: var(--gold);
+}
+
+.cp-mobile-tab.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 2px 2px;
+}
+
+/* Badge on mobile tab */
+.cp-mobile-tab-badge {
+  position: absolute;
+  top: 6px;
+  right: calc(50% - 18px);
+  background: var(--gold);
+  color: var(--white);
+  font-size: 8px;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE DRAWER (slide-in from right)
+   ═══════════════════════════════════════════════════════ */
+.cp-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.28);
+  z-index: 600;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cp-drawer-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+.cp-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--drawer-w);
+  background: var(--white);
+  z-index: 700;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cp-drawer.open {
+  transform: translateX(0);
+}
+
+.cp-drawer-header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cp-drawer-eyebrow {
+  font-size: 7px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cp-drawer-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-top: 6px;
+}
+
+.cp-drawer-label {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.cp-drawer-nav {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.cp-drawer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.cp-drawer-nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.cp-drawer-nav-item.active {
+  color: var(--gold);
+  background: var(--gold-light);
+}
+
+.cp-drawer-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 0 2px 2px 0;
+}
+
+.cp-drawer-badge {
+  background: var(--gold);
+  color: var(--white);
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  margin-left: auto;
+}
+
+.cp-drawer-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.cp-drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cp-drawer-logout:hover,
+.cp-drawer-logout:active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+
+
 /* ═══════════════════════════════════════════════════════
    MAIN STAGE
    ═══════════════════════════════════════════════════════ */
 .cp-stage {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 28px var(--page-px) 64px;
+  /* Extra bottom padding for mobile tab bar */
+  padding: 24px var(--page-px) 100px;
 }
+
 
 /* ═══════════════════════════════════════════════════════
    CATALOG LAYOUT
-   Mobile-first: single column, no sidebar grid
    ═══════════════════════════════════════════════════════ */
 .cp-catalog-layout {
   display: block;
 }
 
-/* ── Product Grid ────────────────────────────────────── */
+/* ── Product Grid ── */
 .cp-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: 12px;
 }
 
-/* ── Product Card ────────────────────────────────────── */
+/* ── Product Card ── */
 .cp-card {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: var(--transition);
-  animation: cp-fadeUp 0.4s both ease-out;
+  animation: cp-fadeUp 0.42s both ease-out;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-card);
 }
 
 @keyframes cp-fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .cp-card:hover {
   box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  border-color: var(--gold-border);
 }
 
-/* Card clickable image area */
+/* Card image */
 .cp-card-clickable {
   position: relative;
-  height: 160px;
+  height: 148px;
   overflow: hidden;
   background: var(--surface-alt);
   flex-shrink: 0;
@@ -275,11 +619,31 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(1.02);
 }
 
 .cp-card:hover .cp-card-image {
-  transform: scale(1.05);
+  transform: scale(1.06);
+}
+
+/* Gold shimmer bar that appears on hover at top of image */
+.cp-card-clickable::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+  z-index: 2;
+}
+
+.cp-card:hover .cp-card-clickable::after {
+  transform: scaleX(1);
 }
 
 /* Card body */
@@ -293,11 +657,10 @@
 
 .cp-card-name {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--black);
   line-height: 1.25;
-  /* 2-line clamp keeps cards uniform height */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -311,7 +674,7 @@
 }
 
 .cp-card-price-label {
-  font-size: 8px;
+  font-size: 7.5px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--ink-muted);
@@ -319,7 +682,7 @@
 }
 
 .cp-card-price {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--gold);
   letter-spacing: -0.2px;
@@ -344,6 +707,11 @@
   overflow: hidden;
   background: var(--surface);
   flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.cp-stepper:focus-within {
+  border-color: var(--gold-border);
 }
 
 .cp-stepper-btn {
@@ -358,15 +726,15 @@
   color: var(--ink-mid);
   font-size: 16px;
   font-weight: 600;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
 .cp-stepper-btn:hover,
 .cp-stepper-btn:active {
-  background: var(--surface-alt);
-  color: var(--black);
+  background: var(--gold-light);
+  color: var(--gold-hover);
 }
 
 .cp-stepper input[type="number"] {
@@ -395,14 +763,14 @@
   background: var(--black);
   color: var(--white);
   border: none;
-  padding: 0 12px;
+  padding: 0 10px;
   height: 38px;
   min-height: 38px;
   font-family: var(--font-body);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   cursor: pointer;
   border-radius: var(--radius);
   display: flex;
@@ -419,6 +787,7 @@
   background: var(--gold);
 }
 
+
 /* ═══════════════════════════════════════════════════════
    MANIFEST / ALLOCATION TABLE
    ═══════════════════════════════════════════════════════ */
@@ -426,7 +795,6 @@
   display: block;
 }
 
-/* Scroll wrapper for table on mobile */
 .cp-manifest-layout > :first-child {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -450,10 +818,10 @@
 }
 
 .cp-manifest-table th {
-  padding: 13px 16px;
-  font-size: 8.5px;
+  padding: 14px 16px;
+  font-size: 8px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.6px;
   font-weight: 700;
   color: var(--ink-muted);
   white-space: nowrap;
@@ -473,12 +841,11 @@
 }
 
 .cp-manifest-table td {
-  padding: 14px 16px;
+  padding: 15px 16px;
   vertical-align: middle;
   color: var(--ink-mid);
 }
 
-/* Remove button in table */
 .cp-manifest-table td button {
   background: transparent;
   border: 1px solid var(--border);
@@ -497,23 +864,23 @@
 .cp-manifest-table td button:hover,
 .cp-manifest-table td button:active {
   border-color: var(--red);
-  background: #fff5f5;
+  background: var(--red-pale);
   color: var(--red);
 }
 
-/* Manifest footer summary */
+/* Manifest footer */
 .cp-manifest-footer {
-  padding: 16px 16px 20px;
+  padding: 18px 20px 22px;
   text-align: right;
   border-top: 1px solid var(--border);
-  margin-top: 0;
   background: var(--white);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   font-family: var(--font-body);
 }
 
+
 /* ═══════════════════════════════════════════════════════
-   SCROLLBAR GLOBAL
+   SCROLLBAR
    ═══════════════════════════════════════════════════════ */
 ::-webkit-scrollbar        { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track  { background: var(--surface); }
@@ -522,7 +889,7 @@
 
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE — TABLET  ≥ 600px
+   TABLET  ≥ 600px
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 600px) {
   :root {
@@ -530,51 +897,34 @@
     --nav-h:   68px;
   }
 
-  .cp-nav-logo {
-    font-size: 22px;
-    letter-spacing: 5px;
-  }
+  .cp-nav-logo         { font-size: 22px; letter-spacing: 5px; }
+  .cp-nav-eyebrow      { font-size: 7.5px; letter-spacing: 2.2px; }
 
-  .cp-nav-eyebrow {
-    font-size: 8px;
-    letter-spacing: 2.2px;
-  }
+  /* Show pill tabs, hide hamburger */
+  .cp-nav-tabs         { display: flex; }
+  .cp-hamburger-wrap   { display: none; }
 
-  .cp-tab {
-    padding: 8px 18px;
-    font-size: 10px;
-  }
+  /* Show desktop identity */
+  .cp-nav-identity     { display: flex; }
+  .cp-nav-identity-name{ font-size: 13px; max-width: 160px; }
+  .cp-nav-logout       { display: flex; }
 
-  .cp-nav-identity-name {
-    font-size: 13px;
-    max-width: 160px;
-  }
+  /* Hide mobile bottom tab bar */
+  .cp-mobile-tabs      { display: none; }
 
-  .cp-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
+  .cp-grid             { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .cp-card-clickable   { height: 180px; }
+  .cp-card-name        { font-size: 16px; }
+  .cp-card-price       { font-size: 19px; }
+  .cp-tab              { padding: 8px 18px; font-size: 10px; }
 
-  .cp-card-clickable {
-    height: 180px;
-  }
-
-  .cp-card-name {
-    font-size: 17px;
-  }
-
-  .cp-card-price {
-    font-size: 20px;
-  }
-
-  .cp-stage {
-    padding: 36px var(--page-px) 72px;
-  }
+  /* Remove extra bottom padding for tab bar */
+  .cp-stage            { padding: 32px var(--page-px) 72px; }
 }
 
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE — DESKTOP  ≥ 900px
+   DESKTOP  ≥ 900px
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 900px) {
   :root {
@@ -582,54 +932,27 @@
     --nav-h:   72px;
   }
 
-  .cp-nav {
-    padding: 0 var(--page-px);
-    gap: 24px;
-  }
+  .cp-nav        { padding: 0 var(--page-px); gap: 24px; }
+  .cp-nav-logo   { font-size: 24px; letter-spacing: 5px; }
+  .cp-tab        { padding: 9px 22px; letter-spacing: 1.4px; }
 
-  .cp-nav-logo {
-    font-size: 24px;
-    letter-spacing: 5px;
-  }
+  .cp-grid       { grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .cp-card-clickable { height: 200px; }
 
-  .cp-tab {
-    padding: 9px 22px;
-    letter-spacing: 1.4px;
-  }
-
-  .cp-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .cp-card-clickable {
-    height: 200px;
-  }
-
-  .cp-stage {
-    padding: 48px var(--page-px) 80px;
-  }
-
-  .cp-manifest-table {
-    min-width: unset;
-  }
+  .cp-stage      { padding: 44px var(--page-px) 80px; }
+  .cp-manifest-table { min-width: unset; }
 }
 
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE — LARGE DESKTOP  ≥ 1280px
+   LARGE DESKTOP  ≥ 1280px
    ═══════════════════════════════════════════════════════ */
 @media (min-width: 1280px) {
   :root { --page-px: 56px; }
 
-  .cp-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 28px;
-  }
-
+  .cp-grid       { grid-template-columns: repeat(4, 1fr); gap: 26px; }
   .cp-card-clickable { height: 220px; }
-
-  .cp-card-name { font-size: 19px; }
+  .cp-card-name  { font-size: 18px; }
 }
 
 
@@ -643,11 +966,13 @@
   }
 }
 
-/* Focus rings for keyboard nav */
 .cp-tab:focus-visible,
 .cp-add-btn:focus-visible,
 .cp-nav-logout:focus-visible,
-.cp-stepper-btn:focus-visible {
+.cp-stepper-btn:focus-visible,
+.cp-hamburger:focus-visible,
+.cp-drawer-nav-item:focus-visible,
+.cp-mobile-tab:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
