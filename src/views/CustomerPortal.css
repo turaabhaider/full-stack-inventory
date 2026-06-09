@@ -651,3 +651,135 @@
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
+/* ==========================================================================
+   MOBILE & PHONE OPTIMIZATION (Targets screens 768px wide and below)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* --- NAVBAR CONTAINER FIXED --- */
+  .cp-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: auto !important;
+    padding: 12px 16px !important;
+    gap: 12px !important;
+  }
+
+  /* --- ROW 1: BRAND (TOP LEFT) --- */
+  .cp-nav-brand {
+    flex: 1 !important;
+    max-width: 55% !important;
+  }
+
+  .cp-nav-eyebrow {
+    font-size: 9px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+  }
+
+  .cp-nav-logo {
+    font-size: 20px !important;
+    margin-top: 2px !important;
+  }
+
+  /* --- ROW 1: CONTROLS & LOGOUT (TOP RIGHT) --- */
+  .cp-nav-right {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    max-width: 45% !important;
+  }
+
+  /* Hide the bulky "Secure Node Session" text on small phones to save space */
+  .cp-nav-identity-label {
+    display: none !important;
+  }
+
+  .cp-nav-identity-name {
+    font-size: 11px !important;
+    max-width: 70px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: right !important;
+  }
+
+  .cp-nav-logout {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    height: 32px !important;
+  }
+
+  /* --- ROW 2: TABS (BOTTOM FULL-WIDTH) --- */
+  .cp-nav-tabs {
+    display: flex !important;
+    width: 100% !important;
+    order: 3 !important; /* Forces tabs below the header elements */
+    justify-content: space-between !important;
+    gap: 6px !important;
+    border-top: 1px solid #f0f0f0 !important;
+    padding-top: 10px !important;
+    margin-top: 2px !important;
+  }
+
+  .cp-tab {
+    flex: 1 !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    padding: 8px 4px !important;
+    white-space: nowrap !important;
+  }
+
+  /* --- BODY CONTENT & GRID FIXES --- */
+  .cp-stage {
+    padding: 16px 12px 60px !important;
+  }
+
+  .cp-grid {
+    grid-template-columns: 1fr !important; /* Perfectly single column on phones */
+    gap: 16px !important;
+  }
+
+  /* Prevent tables from breaking layout wide bounds */
+  .cp-manifest-table {
+    display: block !important;
+    overflow-x: auto !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+
+  .cp-manifest-table th,
+  .cp-manifest-table td {
+    padding: 10px 8px !important;
+  }
+}
+
+/* ==========================================================================
+   ULTRA-SMALL PHONES OPTIMIZATION (Targets devices 480px wide and below)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .cp-nav {
+    padding: 10px 12px !important;
+  }
+  
+  .cp-nav-logo {
+    font-size: 18px !important;
+  }
+
+  .cp-nav-identity {
+    display: none !important; /* Hides identity strictly on tiny devices to prevent clipping */
+  }
+  
+  .cp-nav-right {
+    max-width: 50% !important;
+  }
+}
