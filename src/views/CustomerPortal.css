@@ -652,134 +652,149 @@
   outline-offset: 2px;
 }
 /* ==========================================================================
-   MOBILE & PHONE OPTIMIZATION (Targets screens 768px wide and below)
+   PERFECT MOBILE VIEW — ABSOLUTE ZERO HORIZONTAL SCROLLING
    ========================================================================== */
 @media (max-width: 768px) {
-  /* --- NAVBAR CONTAINER FIXED --- */
-  .cp-nav {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    height: auto !important;
-    padding: 12px 16px !important;
-    gap: 12px !important;
+  
+  /* Force the layout shell to stay completely bound within the device viewport width */
+  html, 
+  body, 
+  .cp-root {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important; /* Safely kills side-to-side page shaking */
+    position: relative;
   }
 
-  /* --- ROW 1: BRAND (TOP LEFT) --- */
+  /* Secure border configurations for all internal spacing calculations */
+  * {
+    box-sizing: border-box !important;
+  }
+
+  /* --- NAVIGATION HEADER RESTRUCTURE --- */
+  .cp-nav {
+    display: flex !important;
+    flex-direction: column !important; /* Stack elements cleanly downwards */
+    align-items: stretch !important;
+    height: auto !important;
+    padding: 16px 14px !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  /* Brand Layer adjustments */
   .cp-nav-brand {
-    flex: 1 !important;
-    max-width: 55% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    text-align: center !important;
   }
 
   .cp-nav-eyebrow {
-    font-size: 9px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 10px !important;
     display: block !important;
+    letter-spacing: 1px;
   }
 
   .cp-nav-logo {
-    font-size: 20px !important;
-    margin-top: 2px !important;
+    font-size: 24px !important;
+    margin: 4px 0 0 0 !important;
   }
 
-  /* --- ROW 1: CONTROLS & LOGOUT (TOP RIGHT) --- */
+  /* Secure Session Node Identity & Logout Actions Row */
   .cp-nav-right {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 8px !important;
-    max-width: 45% !important;
+    justify-content: space-between !important; /* Balanced distribution across screen bounds */
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 10px !important;
+    order: 2 !important;
   }
 
-  /* Hide the bulky "Secure Node Session" text on small phones to save space */
+  .cp-nav-identity {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
   .cp-nav-identity-label {
-    display: none !important;
+    font-size: 9px !important;
+    display: block !important;
   }
 
   .cp-nav-identity-name {
-    font-size: 11px !important;
-    max-width: 70px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    text-align: right !important;
+    font-size: 12px !important;
+    text-align: left !important;
   }
 
   .cp-nav-logout {
-    padding: 6px 10px !important;
-    font-size: 11px !important;
-    white-space: nowrap !important;
-    height: 32px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    height: 36px !important;
   }
 
-  /* --- ROW 2: TABS (BOTTOM FULL-WIDTH) --- */
+  /* Collection Matrix / Allocation Manifest Tabs Bar */
   .cp-nav-tabs {
-    display: flex !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Perfectly splits layout row 50/50 */
     width: 100% !important;
-    order: 3 !important; /* Forces tabs below the header elements */
-    justify-content: space-between !important;
-    gap: 6px !important;
-    border-top: 1px solid #f0f0f0 !important;
-    padding-top: 10px !important;
-    margin-top: 2px !important;
+    gap: 8px !important;
+    order: 3 !important; /* Positions navigation anchors beneath identity headers */
+    border-top: 1px solid var(--border-light, #f2f1ed) !important;
+    padding-top: 12px !important;
+    margin: 4px 0 0 0 !important;
   }
 
   .cp-tab {
-    flex: 1 !important;
+    width: 100% !important;
     justify-content: center !important;
-    font-size: 11px !important;
-    padding: 8px 4px !important;
-    white-space: nowrap !important;
+    font-size: 12px !important;
+    padding: 10px 6px !important;
   }
 
-  /* --- BODY CONTENT & GRID FIXES --- */
+  /* --- STAGE VIEW CONTAINMENT --- */
   .cp-stage {
     padding: 16px 12px 60px !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
+  /* Curated Product Matrix Cards Grid Configuration */
   .cp-grid {
-    grid-template-columns: 1fr !important; /* Perfectly single column on phones */
+    grid-template-columns: 1fr !important; /* Single column card listings for effortless finger scrolling */
+    width: 100% !important;
+    max-width: 100% !important;
     gap: 16px !important;
   }
 
-  /* Prevent tables from breaking layout wide bounds */
-  .cp-manifest-table {
-    display: block !important;
-    overflow-x: auto !important;
+  .cp-card {
     width: 100% !important;
-    -webkit-overflow-scrolling: touch !important;
-    white-space: nowrap !important;
-    font-size: 11px !important;
+    max-width: 100% !important;
+  }
+
+  /* --- REQUISITION MANIFEST TABLE LOCK --- */
+  /* This layout division isolation technique wraps the table, letting the text scroll horizontally
+     inside its own box while holding the entire main website strictly rigid and locked to the glass edge. */
+  .cp-manifest-layout {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important; /* Enables internal table swiping without scrolling the website */
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    -webkit-overflow-scrolling: touch !important; /* Silky-smooth swipe motion on iPhone screens */
+  }
+
+  .cp-manifest-table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 500px !important; /* Preserves minimum structural spacing inside the scroll envelope */
+    font-size: 12px !important;
   }
 
   .cp-manifest-table th,
   .cp-manifest-table td {
-    padding: 10px 8px !important;
-  }
-}
-
-/* ==========================================================================
-   ULTRA-SMALL PHONES OPTIMIZATION (Targets devices 480px wide and below)
-   ========================================================================== */
-@media (max-width: 480px) {
-  .cp-nav {
-    padding: 10px 12px !important;
-  }
-  
-  .cp-nav-logo {
-    font-size: 18px !important;
-  }
-
-  .cp-nav-identity {
-    display: none !important; /* Hides identity strictly on tiny devices to prevent clipping */
-  }
-  
-  .cp-nav-right {
-    max-width: 50% !important;
+    padding: 12px 10px !important;
   }
 }
