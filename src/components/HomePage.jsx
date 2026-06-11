@@ -121,7 +121,6 @@ const HomePage = ({ onLoginClick }) => {
             <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
             <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link" target="_blank" rel="noopener noreferrer">About Us</a>
             <a href="#newsletter" className="hp-nav-link" onClick={scrollToNewsletter}>Contact</a>
-            <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link" target="_blank" rel="noopener noreferrer">Main Web</a>
           </div>
           <div className="hp-nav-actions">
             <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
@@ -164,13 +163,6 @@ const HomePage = ({ onLoginClick }) => {
             className="hp-nav-link"
             onClick={(e) => { scrollToNewsletter(e); setMobileMenuOpen(false); }}
           >Contact</a>
-          <a
-            href="https://may-ptx-production.up.railway.app/"
-            className="hp-nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-          >Main Web</a>
         </div>
 
         <div className="hp-nav-actions">
