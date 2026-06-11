@@ -56,9 +56,8 @@ const FEATURES = [
 
 const TESTIMONIALS = [
   {
-    quote: 'Paktex has been our trusted partner for quality fabrics. Their service and consistency are unmatched.',
-    author: 'Ahmed & Sons',
-    role: 'Textile Distributors',
+    quote: 'Delivering high-quality sourcing, manufacturing, and logistics services for global brands with a commitment to precision and compliance.'
+   
   },
   {
     quote: 'Exceptional quality and contract pricing that truly fits our scale. We rely on Paktex every season.',
