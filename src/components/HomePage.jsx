@@ -54,7 +54,18 @@ const FEATURES = [
   },
 ];
 
-
+const TESTIMONIALS = [
+  {
+    quote: 'Paktex has been our trusted partner for quality fabrics. Their service and consistency are unmatched.',
+    author: 'Ahmed & Sons',
+    role: 'Textile Distributors',
+  },
+  {
+    quote: 'Exceptional quality and contract pricing that truly fits our scale. We rely on Paktex every season.',
+    author: 'Karachi Fabric House',
+    role: 'Wholesale Buyer',
+  },
+];
 
 const AVATAR_COLORS = ['#c9b99a', '#b5a28a', '#d4c5b0', '#a89070', '#c0aa90'];
 
