@@ -60,9 +60,8 @@ const TESTIMONIALS = [
    
   },
   {
-    quote: 'Exceptional quality and contract pricing that truly fits our scale. We rely on Paktex every season.',
-    author: 'Karachi Fabric House',
-    role: 'Wholesale Buyer',
+    quote: 'From concept development to final production, our integrated workflow guarantees transparency, speed, and seamless collaboration at every stage.'
+    
   },
 ];
 
