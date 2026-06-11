@@ -357,82 +357,11 @@ const HomePage = ({ onLoginClick }) => {
             <p className="hp-footer-brand-desc">
              Your trusted authentic low cost sourcing partner, always ready to create real benefits in your supply chain.
             </p>
-           {/* Add this state at the top of your HomePage component with the other useState hooks: */}
-{/* const [showEmail, setShowEmail] = useState(false); */}
-
-<div className="hp-footer-socials">
-  <a
-    href="https://www.facebook.com/PakistanTextileExchange"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hp-footer-social"
-    aria-label="Facebook"
-  >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
-    </svg>
-  </a>
-
-  <a
-    href="https://www.instagram.com/theptxofficial/?hl=en"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hp-footer-social"
-    aria-label="Instagram"
-  >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-      <circle cx="12" cy="12" r="4"/>
-      <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
-    </svg>
-  </a>
-
-  <a
-    href="https://www.linkedin.com/company/paktex-apparel/posts/?feedView=all"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="hp-footer-social"
-    aria-label="LinkedIn"
-  >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
-      <circle cx="4" cy="4" r="2"/>
-    </svg>
-  </a>
-
-  <div style={{ position: 'relative' }}>
-    <button
-      className="hp-footer-social"
-      aria-label="Email support"
-      onClick={() => setShowEmail(prev => !prev)}
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-        <polyline points="22,6 12,13 2,6"/>
-      </svg>
-    </button>
-    {showEmail && (
-      <div style={{
-        position: 'absolute',
-        bottom: 'calc(100% + 10px)',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        borderRadius: '6px',
-        padding: '8px 14px',
-        whiteSpace: 'nowrap',
-        fontSize: '12px',
-        color: 'rgba(255,255,255,0.85)',
-        fontFamily: 'var(--font-mono)',
-        letterSpacing: '0.04em',
-        backdropFilter: 'blur(8px)',
-      }}>
-        david@paktex.com
-      </div>
-    )}
-  </div>
-</div>
+            <div className="hp-footer-socials">
+              {['f', 'in', 'ig', '✉'].map((s, i) => (
+                <button key={i} className="hp-footer-social">{s}</button>
+              ))}
+            </div>
           </div>
 
           <div className="hp-footer-col">
