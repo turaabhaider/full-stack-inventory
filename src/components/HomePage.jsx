@@ -114,8 +114,8 @@ const HomePage = ({ onLoginClick }) => {
           <div className="hp-nav-links">
             <a href="#products" className="hp-nav-link">Collections</a>
             <a href="#" className="hp-nav-link">Pricing</a>
-            <a href="#" className="hp-nav-link">About Us</a>
-            <a href="#" className="hp-nav-link">Contact</a>
+            <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link">MAIN-WEB</a>
+          
           </div>
           <div className="hp-nav-actions">
             <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
