@@ -111,11 +111,12 @@ const HomePage = ({ onLoginClick }) => {
             <span className="hp-nav-logo-pk">PAKTEX</span>
             <span className="hp-nav-logo-sub">TEXTILE EXCHANGE</span>
           </div>
-         <div className={`hp-nav-links ${mobileMenuOpen ? 'hp-nav-links--open' : ''}`}>
-  <a href="#products" className="hp-nav-link" onClick={() => setMobileMenuOpen(false)}>Collections</a>
-  <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
-  <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link">MAIN-WEB</a>
-</div>
+          <div className="hp-nav-links">
+            <a href="#products" className="hp-nav-link">Collections</a>
+            <a href="#" className="hp-nav-link">Pricing</a>
+            <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link">About Us</a>
+            <a href="#" className="hp-nav-link">Contact</a>
+          </div>
           <div className="hp-nav-actions">
             <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
             <button className="hp-nav-btn-solid" onClick={onLoginClick}>Get Started</button>
