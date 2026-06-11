@@ -369,21 +369,7 @@ const HomePage = ({ onLoginClick }) => {
             <button onClick={onLoginClick} className="hp-footer-link">Client Login</button>
           </div>
 
-          <div className="hp-footer-col hp-footer-col--newsletter" id="newsletter">
-            <h4 className="hp-footer-col-title">Newsletter</h4>
-            <p className="hp-footer-newsletter-desc">
-              Stay updated with new collections and exclusive offers.
-            </p>
-            <div className="hp-footer-newsletter-form">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="hp-footer-newsletter-input"
-              />
-              <button className="hp-footer-newsletter-btn" aria-label="Subscribe">→</button>
-            </div>
-            <p className="hp-footer-privacy">We respect your privacy.</p>
-          </div>
+          
         </div>
 
         <div className="hp-footer-bottom">
