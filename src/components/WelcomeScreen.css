@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+.ws-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+
+.ws-root.ws-fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Background geometric lines ── */
+.ws-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── Center content ── */
+.ws-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  animation: ws-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ws-rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ws-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #b89a6e;
+  font-weight: 400;
+  margin: 0 0 28px;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.ws-logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 72px;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  color: #1a1710;
+  line-height: 1;
+  text-transform: uppercase;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+
+.ws-logo-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a09d98;
+  font-weight: 300;
+  margin-top: 10px;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
+.ws-divider {
+  width: 48px;
+  height: 1px;
+  background: #c8a96e;
+  margin: 36px auto;
+  animation: ws-expand 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}
+
+@keyframes ws-expand {
+  from { width: 0; opacity: 0; }
+  to   { width: 48px; opacity: 1; }
+}
+
+.ws-welcome {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: italic;
+  color: #6b6860;
+  letter-spacing: 0.04em;
+  text-align: center;
+  margin: 0;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+
+.ws-tagline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: #a09d98;
+  letter-spacing: 0.12em;
+  margin: 10px 0 0;
+  text-align: center;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.72s both;
+}
+
+.ws-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 48px;
+  animation: ws-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.85s both;
+}
+
+.ws-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d4d1cc;
+  transition: background 0.3s ease;
+}
+
+.ws-dot--active {
+  background: #c8a96e;
+}
+
+/* ── Bottom progress bar ── */
+.ws-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: #c8a96e;
+  width: 0;
+  animation: ws-progress 3s linear 0.4s forwards;
+}
+
+@keyframes ws-progress {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .ws-logo { font-size: 48px; }
+  .ws-welcome { font-size: 15px; }
+  .ws-tagline { font-size: 11px; letter-spacing: 0.06em; }
+}
