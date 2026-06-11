@@ -56,12 +56,10 @@ const FEATURES = [
 
 const TESTIMONIALS = [
   {
-    quote: 'Delivering high-quality sourcing, manufacturing, and logistics services for global brands with a commitment to precision and compliance.'
-   
+    quote: 'Delivering high-quality sourcing, manufacturing, and logistics services for global brands with a commitment to precision and compliance.',
   },
   {
-    quote: 'From concept development to final production, our integrated workflow guarantees transparency, speed, and seamless collaboration at every stage.'
-    
+    quote: 'From concept development to final production, our integrated workflow guarantees transparency, speed, and seamless collaboration at every stage.',
   },
 ];
 
@@ -103,11 +101,6 @@ const HomePage = ({ onLoginClick }) => {
     return () => clearInterval(t);
   }, []);
 
-  const scrollToNewsletter = (e) => {
-    e.preventDefault();
-    document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   if (selectedProduct) {
     return (
       <div className="hp-root">
@@ -119,8 +112,6 @@ const HomePage = ({ onLoginClick }) => {
           <div className="hp-nav-links">
             <a href="#products" className="hp-nav-link">Collections</a>
             <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
-            <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link" target="_blank" rel="noopener noreferrer">About Us</a>
-            <a href="#newsletter" className="hp-nav-link" onClick={scrollToNewsletter}>Contact</a>
           </div>
           <div className="hp-nav-actions">
             <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
@@ -151,18 +142,6 @@ const HomePage = ({ onLoginClick }) => {
         <div className={`hp-nav-links ${mobileMenuOpen ? 'hp-nav-links--open' : ''}`}>
           <a href="#products" className="hp-nav-link" onClick={() => setMobileMenuOpen(false)}>Collections</a>
           <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
-          <a
-            href="https://may-ptx-production.up.railway.app/"
-            className="hp-nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-          >About Us</a>
-          <a
-            href="#newsletter"
-            className="hp-nav-link"
-            onClick={(e) => { scrollToNewsletter(e); setMobileMenuOpen(false); }}
-          >Contact</a>
         </div>
 
         <div className="hp-nav-actions">
@@ -244,7 +223,6 @@ const HomePage = ({ onLoginClick }) => {
         </div>
 
         {allProducts.length === 0 ? (
-          /* Placeholder category cards when no products loaded */
           <div className="hp-cat-grid">
             {[
               { name: 'Cotton Fabrics', desc: 'Premium quality cotton fabrics for all applications', img: CATEGORY_IMAGES[0] },
