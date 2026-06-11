@@ -357,11 +357,18 @@ const HomePage = ({ onLoginClick }) => {
             <p className="hp-footer-brand-desc">
              Your trusted authentic low cost sourcing partner, always ready to create real benefits in your supply chain.
             </p>
-            <div className="hp-footer-socials">
-              {['f', 'in', 'ig', '✉'].map((s, i) => (
-                <button key={i} className="hp-footer-social">{s}</button>
-              ))}
-            </div>
+           <div className="hp-footer-socials">
+  {[
+    { label: 'f',  href: 'https://www.facebook.com/PakistanTextileExchange' },
+    { label: 'in', href: 'https://www.linkedin.com/company/paktex-apparel/posts/?feedView=all' },
+    { label: 'ig', href: 'https://www.instagram.com/theptxofficial/?hl=en' },
+    { label: '✉',  href: 'mailto:david@paktex.com' },
+  ].map((s, i) => (
+    <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="hp-footer-social">
+      {s.label}
+    </a>
+  ))}
+</div>
           </div>
 
           <div className="hp-footer-col">
