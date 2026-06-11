@@ -21,8 +21,8 @@ const FEATURES = [
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
       </svg>
     ),
-    title: 'Premium Quality',
-    desc: 'Finest fabrics sourced from trusted mills',
+    title: 'Flexible Business Models',
+    desc: 'Designed to support short lead times, optimized costs, and scalable production volumes.',
   },
   {
     icon: (
@@ -31,8 +31,8 @@ const FEATURES = [
         <line x1="7" y1="7" x2="7.01" y2="7"/>
       </svg>
     ),
-    title: 'Competitive Pricing',
-    desc: 'Contract-based pricing tailored for you',
+    title: 'Sustainable Product Solutions',
+    desc: 'Focused on eco-friendly materials, responsible sourcing, and long-term environmental impact.',
   },
   {
     icon: (
@@ -40,8 +40,8 @@ const FEATURES = [
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
     ),
-    title: 'Trust & Reliability',
-    desc: 'Secure transactions and dedicated support',
+    title: 'Strong Global Sourcing',
+    desc: 'Network across low-cost and duty-free regions to ensure efficiency and reliability.',
   },
   {
     icon: (
@@ -49,8 +49,8 @@ const FEATURES = [
         <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .96h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 15.92v1z"/>
       </svg>
     ),
-    title: 'Dedicated Support',
-    desc: 'Personal account managers for your business',
+    title: 'Competitive Pricing',
+    desc: 'Strategies combined with high-quality service to deliver maximum value across the entire supply chain.',
   },
 ];
 
