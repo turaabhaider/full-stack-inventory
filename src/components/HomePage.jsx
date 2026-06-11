@@ -340,7 +340,7 @@ const HomePage = ({ onLoginClick }) => {
           </div>
           <h2 className="hp-cta-title">Access Exclusive Contract Pricing</h2>
           <p className="hp-cta-sub">
-            Register or login to view personalised pricing<br />tailored to your business needs.
+            Register or login to view pricing<br />tailored to your business needs.
           </p>
           <button className="hp-cta-btn" onClick={onLoginClick}>Enter Client Portal →</button>
         </div>
