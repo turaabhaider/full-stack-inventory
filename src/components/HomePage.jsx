@@ -148,7 +148,8 @@ const HomePage = ({ onLoginClick }) => {
         <div className={`hp-nav-links ${mobileMenuOpen ? 'hp-nav-links--open' : ''}`}>
           <a href="#products" className="hp-nav-link" onClick={() => setMobileMenuOpen(false)}>Collections</a>
           <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
-          
+          <a href="#" className="hp-nav-link">About Us</a>
+          <a href="#" className="hp-nav-link">Contact</a>
         </div>
 
         <div className="hp-nav-actions">
@@ -373,16 +374,31 @@ const HomePage = ({ onLoginClick }) => {
           </div>
 
           <div className="hp-footer-col">
-           
+            <h4 className="hp-footer-col-title">Quick Links</h4>
             <a href="#products" className="hp-footer-link">Collections</a>
             <button onClick={onLoginClick} className="hp-footer-link">Pricing</button>
-           
+            <a href="#" className="hp-footer-link">About Us</a>
+            <a href="#" className="hp-footer-link">Contact Us</a>
             <button onClick={onLoginClick} className="hp-footer-link">Client Login</button>
           </div>
 
-       
+          <div className="hp-footer-col">
+            <h4 className="hp-footer-col-title">Categories</h4>
+            <a href="#products" className="hp-footer-link">Cotton Fabrics</a>
+            <a href="#products" className="hp-footer-link">Linen Fabrics</a>
+            <a href="#products" className="hp-footer-link">Blended Fabrics</a>
+            <a href="#products" className="hp-footer-link">Sustainable Fabrics</a>
+            <a href="#products" className="hp-footer-link">All Collections</a>
+          </div>
 
-         
+          <div className="hp-footer-col">
+            <h4 className="hp-footer-col-title">Support</h4>
+            <a href="#" className="hp-footer-link">FAQs</a>
+            <a href="#" className="hp-footer-link">Shipping & Delivery</a>
+            <a href="#" className="hp-footer-link">Returns Policy</a>
+            <a href="#" className="hp-footer-link">Terms & Conditions</a>
+            <a href="#" className="hp-footer-link">Privacy Policy</a>
+          </div>
 
           <div className="hp-footer-col hp-footer-col--newsletter">
             <h4 className="hp-footer-col-title">Newsletter</h4>
