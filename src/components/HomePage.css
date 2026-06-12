@@ -990,6 +990,9 @@ html { scroll-behavior: smooth; }
 /* ════════════════════════════════════════════
    RESPONSIVE (MOBILE OPTIMIZATION)
 ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   MEDIA QUERIES (GAP FIX APPLIED)
+════════════════════════════════════════════ */
 @media (max-width: 1280px) {
   .hp-footer-top { grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr; gap: 40px; }
   .hp-cat-grid   { grid-template-columns: repeat(2, 1fr); }
@@ -998,13 +1001,19 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 960px) {
   .hp-nav { padding: 0 32px; }
-  .hp-hero { flex-direction: column; padding-top: 80px; }
-  .hp-hero-content { width: 100%; padding: 64px 32px; align-items: center; text-align: center; }
-  .hp-hero-sub { text-align: center; }
-  .hp-hero-actions { justify-content: center; }
-  .hp-hero-trust { justify-content: center; border-top: none; }
-  .hp-hero-image-wrap { width: 100%; height: 50vh; padding: 0 24px 24px; }
-  .hp-hero-image { border-radius: 16px; }
+  
+  .hp-hero { 
+    flex-direction: column; 
+    padding-top: 80px; 
+    min-height: auto; /* Prevents stretching on smaller screens */
+  }
+  
+  .hp-hero-content { width: 100%; padding: 40px 32px 24px; align-items: center; text-align: center; }
+  .hp-hero-sub { text-align: center; margin-bottom: 32px; }
+  .hp-hero-actions { justify-content: center; margin-bottom: 40px; }
+  .hp-hero-trust { justify-content: center; border-top: none; padding-top: 0; }
+  .hp-hero-image-wrap { width: 100%; height: auto; min-height: unset; padding: 0 24px 24px; }
+  .hp-hero-image { border-radius: 16px; height: auto; max-height: 400px; width: 100%; object-fit: cover; }
   .hp-features-bar { padding: 0; background: transparent; }
   .hp-feature { background: var(--paper); border-radius: 0; border-bottom: 1px solid var(--border); }
   .hp-footer-top { grid-template-columns: 1fr 1fr; }
@@ -1025,27 +1034,29 @@ html { scroll-behavior: smooth; }
   .hp-nav-actions { display: none; }
   .hp-nav-hamburger { display: flex; }
   
-  /* --- GAP FIX --- */
+  /* ── CRITICAL PHONE GAP FIX ── */
   .hp-hero {
-    padding-top: 60px; /* Adjust if the top feels too tight/loose */
-    padding-bottom: 40px; /* Reduces the huge gap under the button */
+    padding-top: 80px; 
+    padding-bottom: 0; 
+    min-height: auto !important; /* Forces layout to snap tightly to the image bottom */
   }
-  /* --------------- */
+  /* ──────────────────────────── */
 
-  .hp-hero-title { font-size: 48px; }
-  .hp-hero-actions { flex-direction: column; width: 100%; }
+  .hp-hero-title { font-size: 42px; margin-bottom: 24px; }
+  .hp-hero-actions { flex-direction: column; width: 100%; gap: 12px; }
   .hp-hero-btn-primary, .hp-hero-btn-ghost { width: 100%; text-align: center; }
   
   .hp-features-bar { 
     grid-template-columns: 1fr; 
-    margin-top: 0; /* Ensures no leftover desktop margin pushes it down */
+    margin-top: 0; 
+    padding-top: 0;
   }
   
-  .hp-products { padding: 80px 24px; }
-  .hp-cat-grid, .hp-grid { grid-template-columns: 1fr; }
-  .hp-testimonial { padding: 80px 24px; }
-  .hp-cta-banner { padding: 100px 24px; margin: 0 16px; }
-  .hp-footer { padding: 64px 24px 40px; margin-top: 40px; }
-  .hp-footer-top { grid-template-columns: 1fr; }
+  .hp-products { padding: 60px 24px; }
+  .hp-cat-grid, .hp-grid { grid-template-columns: 1fr; gap: 24px; }
+  .hp-testimonial { padding: 60px 24px; }
+  .hp-cta-banner { padding: 80px 24px; margin: 0 16px; }
+  .hp-footer { padding: 48px 24px 40px; margin-top: 40px; }
+  .hp-footer-top { grid-template-columns: 1fr; gap: 32px; }
   .hp-footer-bottom { flex-direction: column; text-align: center; gap: 16px; }
 }
