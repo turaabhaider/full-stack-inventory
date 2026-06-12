@@ -4,7 +4,6 @@ import ProductDetail from './ProductDetail';
 import './HomePage.css';
 
 const HERO_IMAGE = 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1972';
-
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=600';
 
 const CATEGORY_IMAGES = [
@@ -95,7 +94,6 @@ const HomePage = ({ onLoginClick }) => {
     return () => observer.disconnect();
   }, [allProducts.length, selectedProduct]);
 
-  // Auto-rotate testimonials
   useEffect(() => {
     const t = setInterval(() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length), 5000);
     return () => clearInterval(t);
@@ -136,7 +134,6 @@ const HomePage = ({ onLoginClick }) => {
       <nav className="hp-nav">
         <div className="hp-nav-logo">
           <span className="hp-nav-logo-pk">PTX</span>
-          
         </div>
 
         <div className={`hp-nav-links ${mobileMenuOpen ? 'hp-nav-links--open' : ''}`}>
@@ -355,26 +352,24 @@ const HomePage = ({ onLoginClick }) => {
             <p className="hp-footer-brand-desc">
              Your trusted authentic low cost sourcing partner, always ready to create real benefits in your supply chain.
             </p>
-           <div className="hp-footer-socials">
-  {[
-    { label: 'f',  href: 'https://www.facebook.com/PakistanTextileExchange' },
-    { label: 'in', href: 'https://www.linkedin.com/company/paktex-apparel/posts/?feedView=all' },
-    { label: 'ig', href: 'https://www.instagram.com/theptxofficial/?hl=en' },
-    { label: '✉',  href: 'mailto:david@paktex.com' },
-  ].map((s, i) => (
-    <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="hp-footer-social">
-      {s.label}
-    </a>
-  ))}
-</div>
+            <div className="hp-footer-socials">
+              {[
+                { label: 'f',  href: 'https://www.facebook.com/PakistanTextileExchange' },
+                { label: 'in', href: 'https://www.linkedin.com/company/paktex-apparel/posts/?feedView=all' },
+                { label: 'ig', href: 'https://www.instagram.com/theptxofficial/?hl=en' },
+                { label: '✉',  href: 'mailto:david@paktex.com' },
+              ].map((s, i) => (
+                <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="hp-footer-social">
+                  {s.label}
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className="hp-footer-col">
             <button onClick={onLoginClick} className="hp-footer-link">Pricing</button>
             <button onClick={onLoginClick} className="hp-footer-link">Client Login</button>
           </div>
-
-          
         </div>
 
         <div className="hp-footer-bottom">
