@@ -187,7 +187,7 @@ const HomePage = ({ onLoginClick }) => {
             </div>
             <div className="hp-hero-trust-text">
               <span className="hp-hero-trust-bold">Trusted by 500+ Businesses</span>
-              <span className="hp-hero-trust-sub">across Pakistan and worldwide</span>
+              <span className="hp-hero-trust-sub">across worldwide</span>
             </div>
           </div>
         </div>
