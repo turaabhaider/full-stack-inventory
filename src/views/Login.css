@@ -1,92 +1,151 @@
+/* ==========================================
+   PAKTEX ULTRALUXE LOGIN THEME (CLEAN WHITE)
+   ========================================== */
+
+:root {
+  --brand-gold: #b39246;
+  --brand-gold-hover: #967936;
+  --bg-ultra-white: #ffffff;
+  --bg-off-white: #f8f9fa;
+  --text-primary: #111111;
+  --text-muted: #6c757d;
+  --border-light: #e9ecef;
+  --shadow-lux: 0 10px 30px -5px rgba(0, 0, 0, 0.03), 
+                0 30px 60px -10px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(0, 0, 0, 0.01);
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .login-root {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #faf9f6;
+  background: linear-gradient(135deg, #fdfdfd 0%, #f4f4f2 100%);
   padding: 40px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .login-card {
-  background: #ffffff;
-  border: 1px solid #e5e5e0;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.02);
+  background: var(--bg-ultra-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lux);
   width: 100%;
-  max-width: 520px;
-  padding: 64px 56px;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 480px;
+  padding: 56px 48px;
+  transition: var(--transition-smooth);
   position: relative;
+  overflow: hidden;
 }
 
-/* Subtle top golden border accent matching brand theme */
+.login-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.04), 
+              0 40px 80px -10px rgba(0, 0, 0, 0.07);
+}
+
+/* Subtle gradient golden accent line */
 .login-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: #b39246;
+  height: 4px;
+  background: linear-gradient(90deg, #d4af37, var(--brand-gold), #e6ca65);
 }
 
+/* Elegant Floating Back Button */
+.login-back-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-smooth);
+  font-weight: 500;
+}
+
+.login-back-btn:hover {
+  color: var(--text-primary);
+  transform: translateX(-4px);
+}
+
+/* Brand Identity Typography */
 .login-brand {
   text-align: center;
-  margin-bottom: 44px;
+  margin-bottom: 40px;
 }
 
 .login-brand h2 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 36px;
+  font-size: 34px;
   font-weight: 300;
-  letter-spacing: 8px;
-  color: #111111;
-  margin: 0 0 12px 0;
+  letter-spacing: 6px;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
   text-transform: uppercase;
 }
 
 .login-brand p {
-  font-size: 10.5px;
-  color: #888888;
+  font-size: 10px;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 4px;
+  letter-spacing: 3.5px;
   margin: 0;
 }
 
+/* Ultra Sleek Segmented Control Tabs */
 .role-selector-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #f4f4f2;
-  padding: 4px;
-  margin-bottom: 32px;
+  background: var(--bg-off-white);
+  padding: 5px;
+  margin-bottom: 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
 }
 
 .role-tab-btn {
   background: transparent;
   border: none;
-  padding: 14px;
+  padding: 12px;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   font-weight: 500;
-  color: #777777;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: 6px;
+  transition: var(--transition-smooth);
+}
+
+.role-tab-btn:hover {
+  color: var(--text-primary);
 }
 
 .role-tab-btn.active {
-  background: #ffffff;
-  color: #111111;
+  background: var(--bg-ultra-white);
+  color: var(--text-primary);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+/* Minimalist Inline Links toggles */
 .client-action-toggle-container {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  margin-top: -16px;
+  gap: 32px;
+  margin-top: -8px;
   margin-bottom: 32px;
-  border-bottom: 1px solid #f4f4f2;
+  border-bottom: 1px solid var(--border-light);
   padding-bottom: 12px;
 }
 
@@ -96,17 +155,98 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #888888;
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 4px 0;
+  padding: 6px 0;
   position: relative;
+  transition: var(--transition-smooth);
+}
+
+.client-action-link::after {
+  content: '';
+  position: absolute;
+  bottom: -13px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  transition: var(--transition-smooth);
 }
 
 .client-action-link.active {
-  color: #b39246;
+  color: var(--brand-gold);
   font-weight: 600;
 }
 
+.client-action-link.active::after {
+  background: var(--brand-gold);
+}
+
+/* Input Fields & Labels */
+.input-group-container {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.input-group-container label {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.lux-input-field {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-off-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+}
+
+.lux-input-field:focus {
+  outline: none;
+  background: var(--bg-ultra-white);
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 4px rgba(179, 146, 70, 0.08);
+}
+
+/* High-End Luxury Action Button */
+.login-submit-btn {
+  width: 100%;
+  background: var(--text-primary);
+  color: var(--bg-ultra-white);
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  margin-top: 8px;
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  background: var(--brand-gold);
+  letter-spacing: 3px;
+  box-shadow: 0 8px 20px rgba(179, 146, 70, 0.2);
+}
+
+.login-submit-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Structural Layout Systems */
 .client-registration-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -117,71 +257,28 @@
   grid-column: span 2;
 }
 
-.input-group-container {
-  margin-bottom: 24px;
-  text-align: left;
-}
-
-.input-group-container label {
-  display: block;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #111111;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.lux-input-field {
-  width: 100%;
-  box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e5e5e0;
-  padding: 14px 16px;
-  font-size: 13px;
-  color: #111111;
-  transition: all 0.25s ease;
-}
-
-.lux-input-field:focus {
-  outline: none;
-  border-color: #111111;
-}
-
-.login-submit-btn {
-  width: 100%;
-  background: #111111;
-  color: #ffffff;
-  border: none;
-  padding: 18px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.login-submit-btn:hover {
-  background: #b39246;
-}
 .client-registration-grid-clean {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
   text-align: left;
 }
 
 .structural-span-full {
   grid-column: span 2;
-  margin-top: 12px !important;
 }
 
-/* Keeps mobile responsiveness pristine */
+/* Pristine Mobile Responsiveness */
 @media (max-width: 600px) {
+  .login-card {
+    padding: 40px 24px;
+    border-radius: 12px;
+  }
+  
   .client-registration-grid-clean {
     grid-template-columns: 1fr;
   }
+  
   .structural-span-full {
     grid-column: span 1;
   }
