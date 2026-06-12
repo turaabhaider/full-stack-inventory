@@ -234,7 +234,7 @@ const HomePage = ({ onLoginClick }) => {
                 <div className="hp-cat-img-wrap">
                   <img src={cat.img} alt={cat.name} className="hp-cat-img" />
                   <div className="hp-cat-icon-badge">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
                     </svg>
                   </div>
@@ -265,7 +265,6 @@ const HomePage = ({ onLoginClick }) => {
                     className="hp-card-img"
                     onError={e => { e.target.src = FALLBACK_IMAGE; }}
                   />
-                  <div className="hp-card-img-overlay" />
                   <span className="hp-card-sku">{product.sku || 'N/A'}</span>
                 </div>
                 <div className="hp-card-body">
@@ -286,7 +285,7 @@ const HomePage = ({ onLoginClick }) => {
       <section className="hp-testimonial">
         <p className="hp-testim-eyebrow">Trusted by Industry Leaders</p>
         <div className="hp-testim-quote-icon">
-          <svg width="36" height="28" viewBox="0 0 36 28" fill="currentColor">
+          <svg width="40" height="32" viewBox="0 0 36 28" fill="currentColor">
             <path d="M0 28V17.2C0 11.8 1.6 7.4 4.8 4 8 0.6 12.6 0 16 0v4.8C13.2 4.8 11 6 9.4 8.4 7.8 10.8 7 13.8 7 17.2H14V28H0zm22 0V17.2C22 11.8 23.6 7.4 26.8 4 30 0.6 34.6 0 38 0v4.8c-2.8 0-5 1.2-6.6 3.6C29.8 10.8 29 13.8 29 17.2H36V28H22z" opacity="0.3"/>
           </svg>
         </div>
@@ -294,13 +293,13 @@ const HomePage = ({ onLoginClick }) => {
           <p className="hp-testim-text">{TESTIMONIALS[testimIdx].quote}</p>
           <div className="hp-testim-author-wrap">
             <div className="hp-testim-author-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
             <div>
-              <span className="hp-testim-name">{TESTIMONIALS[testimIdx].author}</span>
-              <span className="hp-testim-role">{TESTIMONIALS[testimIdx].role}</span>
+              <span className="hp-testim-name">{TESTIMONIALS[testimIdx].author || 'Verified Partner'}</span>
+              <span className="hp-testim-role">{TESTIMONIALS[testimIdx].role || 'Global Supply Chain'}</span>
             </div>
           </div>
         </div>
@@ -334,7 +333,7 @@ const HomePage = ({ onLoginClick }) => {
         <div className="hp-cta-banner-overlay" />
         <div className="hp-cta-content">
           <div className="hp-cta-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
             </svg>
           </div>
