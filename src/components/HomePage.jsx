@@ -166,8 +166,7 @@ const HomePage = ({ onLoginClick }) => {
             Pakistan Textile<br />Exchange
           </h1>
           <p className="hp-hero-sub">
-            Curated wholesale fabrics and materials for discerning distributors.
-            Contract pricing available for registered clients.
+           Delivering high-quality sourcing, manufacturing, and logistics services for global brands with a commitment to precision and compliance.
           </p>
           <div className="hp-hero-actions">
             <button className="hp-hero-btn-primary" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}>
