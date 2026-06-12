@@ -103,20 +103,22 @@ const HomePage = ({ onLoginClick }) => {
 
   if (selectedProduct) {
     return (
-      <div className="hp-root">
-        <nav className="hp-nav">
-          <div className="hp-nav-logo">
-            <span className="hp-nav-logo-pk">PAKISTAN</span>
-            <span className="hp-nav-logo-sub">TEXTILE EXCHANGE</span>
-          </div>
-          <div className="hp-nav-links">
-            <a href="#products" className="hp-nav-link">Collections</a>
-            <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
-          </div>
-          <div className="hp-nav-actions">
-            <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
-            <button className="hp-nav-btn-solid" onClick={onLoginClick}>Get Started</button>
-          </div>
+     <div className="hp-root">
+  <nav className="hp-nav">
+    <div className="hp-nav-logo">
+      <span className="hp-nav-logo-pk">PAKISTAN</span>
+      <span className="hp-nav-logo-sub">TEXTILE EXCHANGE</span>
+    </div>
+    <div className="hp-nav-links">
+      <a href="https://may-ptx-production.up.railway.app/" className="hp-nav-link">Main Web</a>
+      <a href="#products" className="hp-nav-link">Collections</a>
+      <a href="#" className="hp-nav-link" onClick={onLoginClick}>Pricing</a>
+    </div>
+    <div className="hp-nav-actions">
+      <button className="hp-nav-btn-outline" onClick={onLoginClick}>Client Login</button>
+      <button className="hp-nav-btn-solid" onClick={onLoginClick}>Get Started</button>
+    </div>
+ 
         </nav>
         <div style={{ paddingTop: '72px' }}>
           <ProductDetail
