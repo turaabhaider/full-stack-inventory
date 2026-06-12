@@ -106,7 +106,7 @@ const HomePage = ({ onLoginClick }) => {
       <div className="hp-root">
         <nav className="hp-nav">
           <div className="hp-nav-logo">
-            <span className="hp-nav-logo-pk">PAKTEX</span>
+            <span className="hp-nav-logo-pk">PAKISTAN</span>
             <span className="hp-nav-logo-sub">TEXTILE EXCHANGE</span>
           </div>
           <div className="hp-nav-links">
