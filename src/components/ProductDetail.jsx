@@ -79,7 +79,7 @@ const ProductDetail = ({ product, showPrice, price, onBack, onLoginForPrice }) =
             </div>
             <div className="pd-meta-row">
               <span className="pd-meta-key">Availability</span>
-              <span className="pd-meta-val pd-meta-available">● In Stock</span>
+              <span className="pd-meta-val pd-meta-available">In Stock</span>
             </div>
             <div className="pd-meta-row">
               <span className="pd-meta-key">Distribution</span>
