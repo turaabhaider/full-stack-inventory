@@ -41,8 +41,8 @@ const WelcomeScreen = ({ onDone }) => {
 
       <div className="ws-center">
         <p className="ws-eyebrow">Welcome to the</p>
-        <div className="ws-logo">Professional </div>
-        <div className="ws-logo-sub">Apparel Solutions</div>
+        <div className="ws-logo">PAKISTAN</div>
+        <div className="ws-logo-sub">Textile Exchange</div>
         <div className="ws-divider" />
         <p className="ws-welcome">Inventory Management System</p>
         <p className="ws-tagline">Curated wholesale fabrics · Contract pricing · Global distribution</p>

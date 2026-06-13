@@ -161,9 +161,11 @@ const HomePage = ({ onLoginClick }) => {
       <section className="hp-hero">
         <div className="hp-hero-content">
           <p className="hp-hero-eyebrow">Premium Wholesale Fabrics</p>
-          <h1 className="hp-hero-title">
-            Pakistan Textile<br />Exchange
-          </h1>
+         <h1 className="hp-hero-title">
+  Professional
+  <br />
+  Apparel Solutions
+</h1>
           <p className="hp-hero-sub">
            Delivering high-quality sourcing, manufacturing, and logistics services for global brands with a commitment to precision and compliance.
           </p>
