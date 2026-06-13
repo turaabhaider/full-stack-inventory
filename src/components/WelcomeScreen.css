@@ -1,4 +1,5 @@
-/* WelcomeScreen.css */
+/* WelcomeScreen.css - Ultra-Premium Editorial Edition */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@300;400;500&family=Didact+Gothic&display=swap');
 
 .ws-root {
   position: fixed;
@@ -7,10 +8,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #faf7f2 0%, #f3ede2 100%);
+  background-color: #FDFCF9;
   overflow: hidden;
   opacity: 1;
-  transition: opacity 1.1s ease, visibility 1.1s ease;
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s ease;
 }
 
 .ws-root.ws-fade-out {
@@ -19,115 +20,114 @@
   pointer-events: none;
 }
 
-/* Decorative background lines */
+/* Luxury Background Elements */
 .ws-lines {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
+  opacity: 0.4;
 }
 
-/* Center content */
 .ws-center {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 0 24px;
-  max-width: 90vw;
-  animation: ws-rise 1s ease-out both;
+  padding: 0 40px;
+  animation: ws-rise 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes ws-rise {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 .ws-eyebrow {
-  font-size: clamp(11px, 2vw, 13px);
-  letter-spacing: 0.3em;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: #a89070;
-  font-weight: 500;
-  margin: 0 0 12px;
+  color: #8C8476;
+  margin-bottom: 20px;
 }
 
 .ws-logo {
-  font-size: clamp(36px, 9vw, 64px);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #2c2620;
-  line-height: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(48px, 8vw, 84px);
+  font-weight: 300;
+  color: #1A1A1A;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
 }
 
 .ws-logo-sub {
-  font-size: clamp(11px, 2.4vw, 14px);
-  letter-spacing: 0.35em;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(12px, 2vw, 16px);
+  letter-spacing: 0.6em;
   text-transform: uppercase;
-  color: #b5a28a;
-  font-weight: 500;
-  margin-top: 8px;
+  color: #B39246; /* Signature Gold */
+  margin-top: 16px;
+  font-weight: 400;
 }
 
 .ws-divider {
-  width: clamp(40px, 8vw, 60px);
-  height: 2px;
-  background: #c9b99a;
-  margin: clamp(18px, 4vw, 28px) auto;
+  width: 80px;
+  height: 1px;
+  background-color: #EAE6DF;
+  margin: 40px auto;
 }
 
 .ws-welcome {
-  font-size: clamp(15px, 3.2vw, 20px);
-  color: #4a4034;
-  font-weight: 500;
-  margin: 0 0 8px;
+  font-family: 'Didact Gothic', sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #555555;
+  margin-bottom: 12px;
 }
 
 .ws-tagline {
-  font-size: clamp(11px, 2.4vw, 14px);
-  color: #9a8c78;
-  margin: 0 0 32px;
-  line-height: 1.6;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #888888;
+  margin-bottom: 40px;
 }
 
-/* Loading dots */
+/* Refined Loading Dots */
 .ws-dots {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
 }
 
 .ws-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #e4dfd4;
-  transition: background 0.3s ease, transform 0.3s ease;
+  background-color: #E5E1D8;
+  transition: all 0.5s ease;
 }
 
 .ws-dot--active {
-  background: #b5a28a;
-  transform: scale(1.35);
+  background-color: #B39246;
+  transform: scale(1.5);
+  box-shadow: 0 0 10px rgba(179, 146, 70, 0.4);
 }
 
-/* Bottom progress bar */
+/* Progressive Gold Bar */
 .ws-progress-bar {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 3px;
+  height: 2px;
   width: 0%;
-  background: linear-gradient(90deg, #c9b99a, #b5a28a);
-  animation: ws-progress 4.6s linear forwards;
+  background-color: #B39246;
+  box-shadow: 0 0 10px rgba(179, 146, 70, 0.6);
+  animation: ws-progress 4.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 @keyframes ws-progress {
   from { width: 0%; }
   to   { width: 100%; }
-}
-
-/* Small phones */
-@media (max-width: 380px) {
-  .ws-tagline { padding: 0 8px; }
-  .ws-divider { margin: 14px auto; }
 }
