@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
 import ProductDetail from './ProductDetail';
+import heroImage from '../assets/W2036.webp';
 import './HomePage.css';
 
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1972';
+// ── ONLY CHANGE: hero now uses the local W2036.webp asset ──
+const HERO_IMAGE = heroImage;
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=600';
 
 const CATEGORY_IMAGES = [
