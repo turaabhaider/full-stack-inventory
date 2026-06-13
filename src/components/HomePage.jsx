@@ -107,7 +107,7 @@ const HomePage = ({ onLoginClick }) => {
         <nav className="hp-nav">
           <div className="hp-nav-logo">
             <span className="hp-nav-logo-pk">Professional</span>
-            <span className="hp-nav-logo-sub">Apparel Solutions</span>
+            <span className="hp-nav-logo-sub">TEXTILE EXCHANGE</span>
           </div>
           <div className="hp-nav-links">
             <a href="#products" className="hp-nav-link">Collections</a>
