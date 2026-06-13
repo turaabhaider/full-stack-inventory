@@ -295,10 +295,7 @@ const HomePage = ({ onLoginClick }) => {
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <div>
-              <span className="hp-testim-name">{TESTIMONIALS[testimIdx].author || 'Verified Partner'}</span>
-              <span className="hp-testim-role">{TESTIMONIALS[testimIdx].role || 'Global Supply Chain'}</span>
-            </div>
+           
           </div>
         </div>
         <div className="hp-testim-nav">
